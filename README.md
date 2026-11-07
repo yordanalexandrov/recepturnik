@@ -60,8 +60,10 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - `src/components/ErrorBox.tsx` — грешка на екрана с действие според вида („Опитай пак“, „Влез отново“).
 - `src/app/` — `router.tsx` (code-based routes, същите пътища като във family; нов екран = `createRoute` +
   `addChildren`), `Layout.tsx` (горната навигация), `query-client.ts` (повтаря само мрежа и 5xx).
-- `src/features/ai/ai-requests.ts` — общото на AI заявките (предложения, внасяне): `POLL_INTERVAL_MS`,
-  `REQUEST_STATUS_LABELS`, `failureMessage(kind, request)` (без кодове), `formatRequestTime`.
+- `src/features/ai/ai-requests.ts` — общото на AI заявките (предложения, внасяне, подобряване, поправка):
+  `pollWhilePending` (`refetchInterval`: всяка заявка се пита отново на `POLL_INTERVAL_MS`, докато е `pending`),
+  `REQUEST_STATUS_LABELS`, `failureMessage(kind, request)` (без кодове), `formatRequestTime`; `RecentAiRequests.tsx`
+  — регионът с последните внасяния или заявки за предложения.
 - `src/components/Sheet.tsx` — лист („Готово“, Escape, фон; `focusField` — фокус на първото поле);
   `ChoiceChips.tsx` (чипове за мулти избор), `Field.tsx` (етикет, поле, грешка), `ActionBar.tsx` (лентата със
   „Запази“/„Откажи“); `src/lib/use-media-query.ts:useWideScreen()` —
@@ -79,28 +81,30 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   2000 px, JPEG, както във family) и качва веднага; стъпката сочи към нея от „Запази“ нататък.
 - AI предложения: `features/suggestions/` — `SuggestScreen` (`/recipes/suggest`: хранене, време, тагове,
   подсказка; уредите само за четене; последните заявки), `SuggestionRequestView` (`/recipes/suggest/$requestId`:
-  пита на `POLL_INTERVAL_MS`, докато е `pending`; картите или защо е неуспешна и „Опитай пак“), `SuggestionCard`
+  докато е `pending`; картите или защо е неуспешна и „Опитай пак“), `SuggestionCard`
   (действията по статуса в `SuggestionActions`: „Приеми“, „Отхвърли“, „Върни“ — там влизат и следващите действия
   върху предложение) и `SuggestionReview` (`/recipes/suggest/$requestId/$suggestionId`: предложението в
   `RecipeForm`, „Запази“ = `approve`). Нищо не се записва в менюто на family.
 - Внасяне: `features/recipe-import/` — `ImportScreen` (`/recipes/import`, табове „Текст“/„Линк“/„Снимка“,
-  `?tab=&url=&text=`, „Последни внасяния“) и `ImportRequestView` (`/recipes/import/$requestId`: пита на 3 s, докато е
-  `pending`; черновата е във формата за нова рецепта, а „Запази“ одобрява предложението през
+  `?tab=&url=&text=`, „Последни внасяния“) и `ImportRequestView` (`/recipes/import/$requestId`: докато е `pending`
+  — изчакване; черновата е във формата за нова рецепта, а „Запази“ одобрява предложението през
   `/api/recipe-suggestions/:id/approve` — `useApproveSuggestion` от `suggestions/queries.ts`). Без share target на family. Създаден „Нов продукт“ свързва и другите редове
   със същия предложен нов продукт.
 - „Подобри рецептата“: бутонът на прегледа отваря `features/recipes/RefineSheet.tsx`, който пуска заявката
-  (`refinements.ts`: `useRequestRefinement`, `useRefinement` пита на 3 s, докато е `pending`) и показва сравнението.
+  (`refinements.ts`: `useRequestRefinement`, `useRefinement`) и показва сравнението.
   „Приеми“ води към `/recipes/$id/edit?refine=<id на заявката>`; формата започва с `refinedFormValues(recipe,
-  refinement)` (стъпки, подготовка, време) и записът е обикновен `PUT`. Сравнението е `RecipeComparison` +
+  refinement)` (стъпки, подготовка, време) и записът е обикновен `PUT`; подобрение, което не е готово, не влиза
+  във формата, а бележка казва, че не е налично. Сравнението е `RecipeComparison` +
   `ComparisonColumn` (колони една под друга на телефон, една до друга от 48rem; ползва го и „Поправи с AI“), а
   съобщенията за неуспешна AI заявка — `features/ai/ai-requests.ts:failureMessage(kind, request)`.
 - „Поправи с AI“: бутонът на прегледа и значката „Поправка чака преглед“ водят към `/recipes/$id/edit?revise`, където
   `features/recipes/ReviseSheet.tsx` (отваря се и с бутона над стъпките) иска указание, пуска поправката
   (`revisions.ts`: `useRequestRevision` праща `applied: []` и при `404 no_applied_change` пита пак без непознатите id;
-  `useRevision` пита на 3 s) и я сравнява със сегашната рецепта. Листът продължава `recipe.openRevision`, а `409
-  revision_open` води към чакащата. „Приеми“ слага `revisedFormValues` във формата и записът е `PUT` с `revisionId`
-  (`useSaveAndView`); `409 revision_stale` не записва и отваря листа с опреснената поправка, която няма „Приеми“, а
-  „Пусни пак“. На предложение и чернова от внасяне поправката е върху незаписаната форма
+  `useRevision`) и я сравнява със сегашната рецепта. Листът продължава `recipe.openRevision`, а `409
+  revision_open` води към чакащата. „Приеми“ слага `revisedFormValues` в полетата на формата, както са сега
+  (`aiReplacement` на `RecipeForm`), и записът е `PUT` с `revisionId` (`useSaveAndView`); `409 revision_stale` не
+  записва и отваря листа с опреснената поправка, която няма „Приеми“, а „Пусни пак“; следващата приета поправка взима
+  и полетата на по-новата рецепта, които формата не е променила (`rebaseKeptFields`). На предложение и чернова от внасяне поправката е върху незаписаната форма
   (`suggestions/RevisableSuggestionForm.tsx`, `POST /api/recipe-suggestions/:id/revisions`), а одобрението праща
   `revisionId`; „Поправи с AI“ на картата отваря прегледа с `?revise`.
 - `src/styles/global.css` — целият CSS: системен шрифт, CSS променливите на `:root`, тъмна тема по
