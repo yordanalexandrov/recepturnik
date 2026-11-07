@@ -15,7 +15,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { apiFetch, JSON_HEADERS, refusalOf } from '../../api/client';
-import { POLL_INTERVAL_MS } from '../ai/ai-requests';
+import { pollWhilePending } from '../ai/ai-requests';
 import { preparationToValues } from '../preparation/preparation-values';
 import { recipeKeys } from './queries';
 import {
@@ -138,7 +138,7 @@ export function useRequestRevision() {
   });
 }
 
-/** Поправката с `id`; пита отново на 3 s, докато е `pending`. Без `id` не пита. */
+/** Поправката с `id`; пита отново, докато е `pending`. Без `id` не пита. */
 export function useRevision(id: string | undefined) {
   return useQuery({
     queryKey: revisionKey(id ?? ''),
@@ -147,8 +147,7 @@ export function useRevision(id: string | undefined) {
         (body) => body.request,
       ),
     enabled: id !== undefined,
-    refetchInterval: (query) =>
-      query.state.data?.status === 'pending' ? POLL_INTERVAL_MS : false,
+    refetchInterval: pollWhilePending((request) => request.status),
   });
 }
 

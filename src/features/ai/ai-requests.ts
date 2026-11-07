@@ -6,7 +6,20 @@ import type { ContractFailure, ContractRequestStatus } from '@family/shared';
  */
 
 /** Колко често се пита за заявка, която още е `pending`. */
-export const POLL_INTERVAL_MS = 3000;
+const POLL_INTERVAL_MS = 3000;
+
+/**
+ * `refetchInterval` на заявка: пита отново на `POLL_INTERVAL_MS`, докато `statusOf` на данните е `pending`; без данни
+ * или с `done`/`failed` не пита.
+ */
+export function pollWhilePending<T>(
+  statusOf: (data: T) => ContractRequestStatus,
+) {
+  return (query: { state: { data: T | undefined } }): number | false =>
+    query.state.data !== undefined && statusOf(query.state.data) === 'pending'
+      ? POLL_INTERVAL_MS
+      : false;
+}
 
 export const REQUEST_STATUS_LABELS: Record<ContractRequestStatus, string> = {
   pending: 'чака',

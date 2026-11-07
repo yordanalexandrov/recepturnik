@@ -17,7 +17,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { apiFetch, JSON_HEADERS } from '../../api/client';
-import { POLL_INTERVAL_MS } from '../ai/ai-requests';
+import { pollWhilePending } from '../ai/ai-requests';
 import { importKeys } from '../recipe-import/queries';
 import { storeRecipe } from '../recipes/queries';
 
@@ -140,7 +140,7 @@ export function useRestoreSuggestion() {
   return useDecision('restore');
 }
 
-/** Заявката и предложенията ѝ; пита отново на `POLL_INTERVAL_MS`, докато е `pending`. */
+/** Заявката и предложенията ѝ; пита отново, докато е `pending`. */
 export function useSuggestionRequest(id: string) {
   return useQuery({
     queryKey: suggestionKeys.request(id),
@@ -149,7 +149,6 @@ export function useSuggestionRequest(id: string) {
         `/recipe-suggestions/requests/${id}`,
         suggestionRequestDetailSchema,
       ),
-    refetchInterval: (query) =>
-      query.state.data?.request.status === 'pending' ? POLL_INTERVAL_MS : false,
+    refetchInterval: pollWhilePending((detail) => detail.request.status),
   });
 }

@@ -7,7 +7,7 @@ import {
 } from '@family/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch, JSON_HEADERS } from '../../api/client';
-import { POLL_INTERVAL_MS } from '../ai/ai-requests';
+import { pollWhilePending } from '../ai/ai-requests';
 
 const RECENT_LIMIT = 10;
 
@@ -107,7 +107,6 @@ export function useImport(id: string) {
   return useQuery({
     queryKey: importKeys.request(id),
     queryFn: () => apiFetch(`/recipe-imports/${id}`, recipeImportDetailSchema),
-    refetchInterval: (query) =>
-      query.state.data?.request.status === 'pending' ? POLL_INTERVAL_MS : false,
+    refetchInterval: pollWhilePending((detail) => detail.request.status),
   });
 }

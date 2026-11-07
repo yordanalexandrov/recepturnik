@@ -6,7 +6,7 @@ import {
 } from '@family/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../api/client';
-import { POLL_INTERVAL_MS } from '../ai/ai-requests';
+import { pollWhilePending } from '../ai/ai-requests';
 import { preparationToValues } from '../preparation/preparation-values';
 import {
   type RecipeFormValues,
@@ -35,7 +35,7 @@ export function useRequestRefinement() {
   });
 }
 
-/** Подобряването с `id`; пита отново на 3 s, докато е `pending`. Без `id` не пита. */
+/** Подобряването с `id`; пита отново, докато е `pending`. Без `id` не пита. */
 export function useRefinement(id: string | undefined) {
   return useQuery({
     queryKey: refinementKey(id ?? ''),
@@ -44,8 +44,7 @@ export function useRefinement(id: string | undefined) {
         (body) => body.request,
       ),
     enabled: id !== undefined,
-    refetchInterval: (query) =>
-      query.state.data?.status === 'pending' ? POLL_INTERVAL_MS : false,
+    refetchInterval: pollWhilePending((request) => request.status),
   });
 }
 
