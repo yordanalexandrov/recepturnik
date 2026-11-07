@@ -11,7 +11,7 @@ const SOURCE_LABELS: Record<RecipeImportRequest['source'], string> = {
 };
 
 /** Текстът, отрязан до `max` знака по цяла дума, с „…“, ако е отрязан. */
-export function shorten(text: string, max = 40): string {
+function shorten(text: string, max = 40): string {
   const chars = [...text];
   if (chars.length <= max) {
     return text;

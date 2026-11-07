@@ -23,7 +23,7 @@ import { storeRecipe } from '../recipes/queries';
 
 const RECENT_LIMIT = 10;
 
-export const suggestionKeys = {
+const suggestionKeys = {
   all: ['recipe-suggestions'] as const,
   recent: ['recipe-suggestions', 'recent'] as const,
   request: (id: string) => ['recipe-suggestions', 'request', id] as const,

@@ -7,8 +7,8 @@ interface ErrorBoxProps {
   onRetry?: () => void;
 }
 
-/** Текстът за грешка, както го вижда човекът; ползвай го и за toast при неуспешно действие. */
-export function errorText(error: unknown): string {
+/** Текстът за грешка, както го вижда човекът. */
+function errorText(error: unknown): string {
   switch (failureKind(error)) {
     case 'network':
       return 'Няма връзка със сървъра. Провери връзката и опитай пак.';

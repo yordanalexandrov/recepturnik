@@ -5,7 +5,7 @@ const STARS = [1, 2, 3, 4, 5] as const;
 const MAX = STARS.length;
 
 /** „4 от 5“ или „Неоценена“: как звучи оценката за екранен четец. */
-export function ratingText(rating: Rating | null): string {
+function ratingText(rating: Rating | null): string {
   return rating === null ? 'Неоценена' : `${rating} от ${MAX}`;
 }
 

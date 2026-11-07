@@ -120,7 +120,7 @@ export const soupSuggestion: RecipeSuggestion = recipeSuggestionSchema.parse({
 
 export const approvedRecipeId = 'bbbbbbbb-0000-4000-8000-000000000009';
 
-export const omeletteSuggestionApproved: RecipeSuggestion =
+const omeletteSuggestionApproved: RecipeSuggestion =
   recipeSuggestionSchema.parse({
     id: 'dddddddd-0000-4000-8000-000000000003',
     origin: 'suggest',

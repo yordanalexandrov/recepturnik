@@ -37,7 +37,7 @@ export function hasFilters(filters: RecipeFilters): boolean {
 }
 
 /** Ключът в sessionStorage; нарочно различен от този на family (`family.recipeFilters`). */
-export const STORED_FILTERS_KEY = 'recepturnik.recipeFilters';
+const STORED_FILTERS_KEY = 'recepturnik.recipeFilters';
 
 /** Записаните филтри през `recipeFiltersSchema`: непознатите стойности (стар запис, ръчна намеса) отпадат. */
 function parse(raw: string | null): RecipeFilters {

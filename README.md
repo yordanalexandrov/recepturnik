@@ -57,8 +57,7 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   добавя `X-Acting-User` с `RECEPTURKO_ID` (ADR-0003), проверява отговора със schema от `@family/shared` и хвърля
   `NetworkError` или `ApiError`. `failureKind(error)` дава вида: `network`, `session_expired`, `ai_unavailable`,
   `server`, `client`; `refusalOf(error, code)` чете отказ с под-код.
-- `src/components/ErrorBox.tsx` — грешка на екрана с действие според вида („Опитай пак“, „Влез отново“);
-  `errorText(error)` е същият текст за toast.
+- `src/components/ErrorBox.tsx` — грешка на екрана с действие според вида („Опитай пак“, „Влез отново“).
 - `src/app/` — `router.tsx` (code-based routes, същите пътища като във family; нов екран = `createRoute` +
   `addChildren`), `Layout.tsx` (горната навигация), `query-client.ts` (повтаря само мрежа и 5xx).
 - `src/features/ai/ai-requests.ts` — общото на AI заявките (предложения, внасяне): `POLL_INTERVAL_MS`,

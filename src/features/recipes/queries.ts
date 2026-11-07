@@ -43,7 +43,7 @@ export const recipeKeys = {
   ingredientSearch: (q: string) => ['ingredients', 'search', q] as const,
 };
 
-export function recipesSearch(params: RecipesParams): string {
+function recipesSearch(params: RecipesParams): string {
   const search = new URLSearchParams();
   const q = params.q?.trim();
   if (q) {

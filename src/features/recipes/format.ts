@@ -4,7 +4,7 @@ import {
   UNIT_LABELS_BG,
 } from '@family/shared';
 
-export const MINUTES_PER_HOUR = 60;
+const MINUTES_PER_HOUR = 60;
 const MINUTES_PER_DAY = 24 * MINUTES_PER_HOUR;
 
 /**

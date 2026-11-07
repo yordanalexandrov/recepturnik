@@ -2,7 +2,7 @@ import { appliancesResponseSchema } from '@family/shared';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../../api/client';
 
-export const applianceKeys = {
+const applianceKeys = {
   all: ['appliances'] as const,
 };
 

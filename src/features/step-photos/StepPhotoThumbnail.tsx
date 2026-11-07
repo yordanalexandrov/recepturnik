@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { PhotoViewer } from './PhotoViewer';
 
 /** Ширината на миниатюрата, която се иска от api-то (`?w=`): 5rem при плътност до 3. */
-export const THUMBNAIL_WIDTH = 240;
+const THUMBNAIL_WIDTH = 240;
 
 interface StepPhotoThumbnailProps {
   photoId: string;
