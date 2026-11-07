@@ -1,7 +1,8 @@
 import { Link } from '@tanstack/react-router';
 import { ErrorBox } from '../../components/ErrorBox';
 import { Spinner } from '../../components/Spinner';
-import { formatDateTime, IMPORT_STATUS_LABELS, importLabel } from './messages';
+import { formatRequestTime, REQUEST_STATUS_LABELS } from '../ai/ai-requests';
+import { importLabel } from './messages';
 import { useRecentImports } from './queries';
 
 /** Регионът „Последни внасяния“: последните 10, за да се върне човек към едно от тях. */
@@ -30,10 +31,10 @@ export function RecentImports() {
               >
                 <span>{importLabel(request)}</span>
                 <span className="badge">
-                  {IMPORT_STATUS_LABELS[request.status]}
+                  {REQUEST_STATUS_LABELS[request.status]}
                 </span>
                 <span className="recent__date">
-                  {formatDateTime(request.createdAt)}
+                  {formatRequestTime(request.createdAt)}
                 </span>
               </Link>
             </li>

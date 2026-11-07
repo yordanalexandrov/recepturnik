@@ -955,6 +955,7 @@ fieldset.stars {
 .recent__date {
   color: var(--color-muted);
   font-size: 0.875rem;
+}
 
 /* AI предложения: формата за заявка, картите и прегледът. */
 .suggest-form,

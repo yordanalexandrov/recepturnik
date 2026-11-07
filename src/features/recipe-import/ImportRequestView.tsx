@@ -10,15 +10,14 @@ import { ErrorBox } from '../../components/ErrorBox';
 import { Spinner } from '../../components/Spinner';
 import { sourceDomain } from '../recipes/format';
 import { RecipeForm } from '../recipes/RecipeForm';
+import {
+  useApproveSuggestion,
+  useRejectSuggestion,
+  useRestoreSuggestion,
+} from '../suggestions/queries';
 import { importToFormValues } from './import-form-values';
 import { importFailureMessage, textLead } from './messages';
-import {
-  useApproveImport,
-  useDecideImport,
-  useImport,
-  useRequestImport,
-  useSentPhoto,
-} from './queries';
+import { useImport, useRequestImport, useSentPhoto } from './queries';
 
 /**
  * `/recipes/import/:requestId`: изчакване, докато внасянето е `pending` (проверява се периодично), после черновата във
@@ -133,8 +132,8 @@ function ImportDraft({
   linked: readonly Ingredient[];
   sourceUrl: string | undefined;
 }) {
-  const approve = useApproveImport();
-  const reject = useDecideImport('reject');
+  const approve = useApproveSuggestion();
+  const reject = useRejectSuggestion();
   const navigate = useNavigate();
   const { assumptions } = suggestion.payload;
   return (
@@ -204,7 +203,7 @@ function ImportDraft({
 
 /** Решена чернова: какво е решено и връзка към рецептата; отхвърлената има „Върни“ — пак е чернова. */
 function Decided({ suggestion }: { suggestion: ImportedSuggestion }) {
-  const restore = useDecideImport('restore');
+  const restore = useRestoreSuggestion();
   return (
     <div className="recipes__empty">
       <p>

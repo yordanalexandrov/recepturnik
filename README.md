@@ -61,7 +61,8 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   `errorText(error)` е същият текст за toast.
 - `src/app/` — `router.tsx` (code-based routes, същите пътища като във family; нов екран = `createRoute` +
   `addChildren`), `Layout.tsx` (горната навигация), `query-client.ts` (повтаря само мрежа и 5xx).
-  `Placeholder.tsx` пази местата на екраните от следващите задачи.
+- `src/features/ai/ai-requests.ts` — общото на AI заявките (предложения, внасяне): `POLL_INTERVAL_MS`,
+  `REQUEST_STATUS_LABELS`, `failureMessage(kind, request)` (без кодове), `formatRequestTime`.
 - `src/components/Sheet.tsx` — лист („Готово“, Escape, фон; `focusField` — фокус на първото поле);
   `ChoiceChips.tsx` (чипове за мулти избор), `Field.tsx` (етикет, поле, грешка), `ActionBar.tsx` (лентата със
   „Запази“/„Откажи“); `src/lib/use-media-query.ts:useWideScreen()` —
@@ -86,7 +87,7 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - Внасяне: `features/recipe-import/` — `ImportScreen` (`/recipes/import`, табове „Текст“/„Линк“/„Снимка“,
   `?tab=&url=&text=`, „Последни внасяния“) и `ImportRequestView` (`/recipes/import/$requestId`: пита на 3 s, докато е
   `pending`; черновата е във формата за нова рецепта, а „Запази“ одобрява предложението през
-  `/api/recipe-suggestions/:id/approve`). Без share target на family. Създаден „Нов продукт“ свързва и другите редове
+  `/api/recipe-suggestions/:id/approve` — `useApproveSuggestion` от `suggestions/queries.ts`). Без share target на family. Създаден „Нов продукт“ свързва и другите редове
   със същия предложен нов продукт.
 - `src/styles/global.css` — целият CSS: системен шрифт, CSS променливите на `:root`, тъмна тема по
   `prefers-color-scheme`, една граница за широк екран (48rem). Без стиловете на family.

@@ -1,19 +1,13 @@
 import {
-  type ApproveSuggestionInput,
-  approvedSuggestionResponseSchema,
   type RecipeImportDetail,
   type RecipeImportParams,
   recipeImportDetailSchema,
   recipeImportResponseSchema,
   recipeImportsResponseSchema,
-  recipeSuggestionResponseSchema,
 } from '@family/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch, JSON_HEADERS } from '../../api/client';
-import { recipeKeys, storeRecipe } from '../recipes/queries';
-
-/** Колко често се пита за внасяне, което още е `pending`. */
-export const POLL_INTERVAL_MS = 3000;
+import { POLL_INTERVAL_MS } from '../ai/ai-requests';
 
 const RECENT_LIMIT = 10;
 
@@ -115,48 +109,5 @@ export function useImport(id: string) {
     queryFn: () => apiFetch(`/recipe-imports/${id}`, recipeImportDetailSchema),
     refetchInterval: (query) =>
       query.state.data?.request.status === 'pending' ? POLL_INTERVAL_MS : false,
-  });
-}
-
-/**
- * „Запази“ на черновата: одобрява предложението от внасянето с рецептата от формата; api-то създава рецептата в
- * регистъра и записва решението на Рецептурко.
- */
-export function useApproveImport() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      id,
-      input,
-    }: {
-      id: string;
-      input: ApproveSuggestionInput;
-    }) =>
-      apiFetch(
-        `/recipe-suggestions/${id}/approve`,
-        approvedSuggestionResponseSchema,
-        { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify(input) },
-      ),
-    onSuccess({ recipe }) {
-      storeRecipe(queryClient, recipe);
-      void queryClient.invalidateQueries({ queryKey: recipeKeys.lists });
-      void queryClient.invalidateQueries({ queryKey: importKeys.all });
-    },
-  });
-}
-
-/** Решение по предложението от внасяне: „Отхвърли“ или „Върни“ (отхвърленото е пак `proposed`). */
-export function useDecideImport(action: 'reject' | 'restore') {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) =>
-      apiFetch(
-        `/recipe-suggestions/${id}/${action}`,
-        recipeSuggestionResponseSchema,
-        { method: 'POST' },
-      ).then((body) => body.suggestion),
-    onSuccess() {
-      void queryClient.invalidateQueries({ queryKey: importKeys.all });
-    },
   });
 }

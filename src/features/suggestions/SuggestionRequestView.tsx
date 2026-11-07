@@ -5,7 +5,8 @@ import type {
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import { ErrorBox } from '../../components/ErrorBox';
 import { Spinner } from '../../components/Spinner';
-import { failureMessage, requestLabel } from './messages';
+import { failureMessage } from '../ai/ai-requests';
+import { requestLabel } from './messages';
 import {
   paramsOf,
   useRequestSuggestions,
@@ -71,7 +72,7 @@ function RequestFailed({ request }: { request: SuggestionRequest }) {
   return (
     <>
       <div className="error-box" role="alert">
-        <p>{failureMessage(request)}</p>
+        <p>{failureMessage('suggest', request)}</p>
         <p className="muted">Търсено: {requestLabel(request)}</p>
         <button
           type="button"

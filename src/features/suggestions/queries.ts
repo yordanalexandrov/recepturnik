@@ -1,4 +1,5 @@
 import {
+  type AnyRecipeSuggestion,
   type ApproveSuggestionInput,
   approvedSuggestionResponseSchema,
   type RecipeSuggestParams,
@@ -9,14 +10,18 @@ import {
   suggestionRequestResponseSchema,
   suggestionRequestsResponseSchema,
 } from '@family/shared';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { apiFetch, JSON_HEADERS } from '../../api/client';
+import { POLL_INTERVAL_MS } from '../ai/ai-requests';
+import { importKeys } from '../recipe-import/queries';
 import { storeRecipe } from '../recipes/queries';
 
 const RECENT_LIMIT = 10;
-
-/** Колко често се пита за заявка, която още е `pending`. */
-export const POLL_INTERVAL_MS = 3000;
 
 export const suggestionKeys = {
   all: ['recipe-suggestions'] as const,
@@ -70,6 +75,19 @@ export function useRequestSuggestions() {
   });
 }
 
+/** Заявката, от която е предложението, се чете наново: заявка за предложения или внасяне. */
+function invalidateRequestOf(
+  queryClient: QueryClient,
+  suggestion: AnyRecipeSuggestion,
+): void {
+  void queryClient.invalidateQueries({
+    queryKey:
+      suggestion.origin === 'suggest'
+        ? suggestionKeys.request(suggestion.requestId)
+        : importKeys.all,
+  });
+}
+
 /** Приемане с прегледания `RecipeInput` → нова рецепта в регистъра; предложението е `approved`. */
 export function useApproveSuggestion() {
   const queryClient = useQueryClient();
@@ -92,11 +110,7 @@ export function useApproveSuggestion() {
       ),
     onSuccess({ recipe, suggestion }) {
       storeRecipe(queryClient, recipe);
-      if (suggestion.origin === 'suggest') {
-        void queryClient.invalidateQueries({
-          queryKey: suggestionKeys.request(suggestion.requestId),
-        });
-      }
+      invalidateRequestOf(queryClient, suggestion);
     },
   });
 }
@@ -112,11 +126,7 @@ function useDecision(action: 'reject' | 'restore') {
         { method: 'POST' },
       ).then((body) => body.suggestion),
     onSuccess(suggestion) {
-      if (suggestion.origin === 'suggest') {
-        void queryClient.invalidateQueries({
-          queryKey: suggestionKeys.request(suggestion.requestId),
-        });
-      }
+      invalidateRequestOf(queryClient, suggestion);
     },
   });
 }

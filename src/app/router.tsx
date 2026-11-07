@@ -22,7 +22,6 @@ import { SuggestionReview } from '../features/suggestions/SuggestionReview';
 import { SuggestScreen } from '../features/suggestions/SuggestScreen';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
-import { Placeholder } from './Placeholder';
 
 // Пътищата са същите като във family (спец #1, „Пътища“), за да работи един линк и в двете приложения.
 // Code-based routes: всеки екран е `createRoute` тук и влиза в `rootRoute.addChildren`.
