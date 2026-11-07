@@ -792,3 +792,79 @@ fieldset.stars {
     grid-column: 1 / -1;
   }
 }
+
+/* AI предложения: формата за заявка, картите и прегледът. */
+.suggest-form,
+.suggestions__waiting,
+.suggestions__recent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  margin-block: var(--space);
+}
+
+.suggestions__recent-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+.suggestion-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space);
+}
+
+@media (min-width: 48rem) {
+  .suggestion-cards {
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  }
+}
+
+.suggestion-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+  padding: var(--space);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.suggestion-card h2,
+.suggestion-card h3,
+.suggestion-card p {
+  margin: 0;
+}
+
+.suggestion-card h3 {
+  font-size: 1rem;
+}
+
+.suggestion-card--rejected > :not(.suggestion-card__actions) {
+  opacity: 0.6;
+}
+
+.suggestion-card__products {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.suggestion-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.suggestion-review__note {
+  margin-bottom: var(--space);
+}
