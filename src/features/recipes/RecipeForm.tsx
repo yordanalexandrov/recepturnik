@@ -58,6 +58,17 @@ export interface RecipeFormProps {
    * незаписаната форма).
    */
   aiActions?: (values: RecipeFormValues) => ReactNode;
+  /**
+   * Приета поправка: прилага се върху полетата, както са сега (с незаписаните промени), веднъж за всеки нов `key`.
+   * По `aiReplacement` на family.
+   */
+  aiReplacement?: AiReplacement | undefined;
+}
+
+/** Каквото приета поправка прави с формата: нов `key` = нова поправка за прилагане. */
+export interface AiReplacement {
+  key: number;
+  apply: (values: RecipeFormValues) => RecipeFormValues;
 }
 
 /** Стъпката или редът в отворения лист; `added` = нов от „Добави …“, който се маха, ако се затвори празен. */
@@ -176,10 +187,16 @@ export function RecipeForm({
   submitError,
   onCancel,
   aiActions,
+  aiReplacement,
 }: RecipeFormProps) {
   const [values, setValues] = useState<RecipeFormValues>(
     () => initialValues ?? emptyRecipeFormValues(),
   );
+  const [replacedKey, setReplacedKey] = useState(aiReplacement?.key);
+  if (aiReplacement && aiReplacement.key !== replacedKey) {
+    setReplacedKey(aiReplacement.key);
+    setValues(aiReplacement.apply(values));
+  }
   /**
    * Грешките на клиентската проверка от последното „Запази“ (тази от сървъра е `submitError`); показват се само докато
    * полето им още не минава проверката.

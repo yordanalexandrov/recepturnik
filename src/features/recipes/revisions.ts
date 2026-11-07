@@ -197,6 +197,33 @@ function revisionToIngredientRows(
   );
 }
 
+/** Полетата на формата, които поправката не пипа. */
+const KEPT_FIELDS = [
+  'title',
+  'sourceUrl',
+  'tags',
+  'appliance',
+  'nutrition',
+] as const satisfies readonly (keyof RecipeFormValues)[];
+
+/**
+ * Формата `values`, отворена с `loaded`, върху по-новата рецепта `fresh` (напр. след `409 revision_stale`): полетата,
+ * които поправката не пипа и които не са променени във формата, са тези на `fresh`; променените остават.
+ */
+export function rebaseKeptFields(
+  values: RecipeFormValues,
+  loaded: RecipeFormValues,
+  fresh: RecipeFormValues,
+): RecipeFormValues {
+  const rebased = { ...values };
+  for (const field of KEPT_FIELDS) {
+    if (JSON.stringify(values[field]) === JSON.stringify(loaded[field])) {
+      Object.assign(rebased, { [field]: fresh[field] });
+    }
+  }
+  return rebased;
+}
+
 /**
  * „Приеми“ на поправка: формата `values` с цялата поправка (порции, време, продукти, компоненти, подготовка, стъпки);
  * заглавието, таговете, уредът, източникът и хранителната стойност остават.

@@ -248,6 +248,70 @@ describe('„Поправи с AI“ на рецепта', () => {
     expect(saved).toEqual([]);
   });
 
+  it('след `revision_stale` новата поправка влиза в сегашната форма върху по-новата рецепта: записът пази и двете', async () => {
+    const user = userEvent.setup();
+    const saved = serveEdit();
+    serveRevision();
+    const { sheet } = await openRevise(user);
+    await send(user, sheet);
+    await sheet.findByText(revision.changes);
+    await user.click(sheet.getByRole('button', { name: 'Приеми' }));
+    const title = screen.getByRole('textbox', { name: 'Заглавие' });
+    await user.clear(title);
+    await user.type(title, 'Пиле с песто и пипер');
+
+    // Междувременно рецептата е записана другаде с друг източник.
+    const newer = {
+      ...chickenWithPesto,
+      sourceUrl: 'https://recepti.example/novo-pile',
+      updatedAt: '2026-11-07T11:00:00.000Z',
+    };
+    server.use(
+      http.get(`/api/recipes/${chickenWithPesto.id}`, () =>
+        HttpResponse.json({ recipe: newer }),
+      ),
+    );
+    refuseStaleSave();
+    serveRevision({ status: 'done', revision, stale: true });
+    await user.click(
+      screen.getByRole('button', { name: 'Свържи „черен пипер“' }),
+    );
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Премахни ред',
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Запази' }));
+
+    const reopened = within(
+      await screen.findByRole('dialog', { name: 'Поправи с AI' }),
+    );
+    await user.click(
+      await reopened.findByRole('button', { name: 'Пусни пак' }),
+    );
+    await user.click(await reopened.findByRole('button', { name: 'Приеми' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Свържи „черен пипер“' }),
+    );
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', {
+        name: 'Премахни ред',
+      }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Запази' }));
+
+    await vi.waitFor(() =>
+      expect(saved).toEqual([
+        expect.objectContaining({
+          revisionId: pendingRevision.id,
+          title: 'Пиле с песто и пипер',
+          sourceUrl: newer.sourceUrl,
+          prepMinutes: 50,
+        }),
+      ]),
+    );
+  });
+
   it('`no_applied_change` пита пак без непознатите id, докато опитите свършат', async () => {
     const user = userEvent.setup();
     const known = 'ffffffff-0000-4000-8000-000000000002';

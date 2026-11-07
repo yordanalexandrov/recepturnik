@@ -1,6 +1,10 @@
 import type { RecipeInput } from '@family/shared';
 import { useState } from 'react';
-import { RecipeForm, type RecipeFormProps } from '../recipes/RecipeForm';
+import {
+  type AiReplacement,
+  RecipeForm,
+  type RecipeFormProps,
+} from '../recipes/RecipeForm';
 import { ReviseSheet } from '../recipes/ReviseSheet';
 import {
   type RecipeFormValues,
@@ -15,7 +19,6 @@ import {
 
 /** Рецептата от формата, която листът поправя и с която сравнява; взета при отваряне без поправка. */
 interface Snapshot {
-  values: RecipeFormValues;
   base: RevisionBase;
   target: RevisionTarget;
 }
@@ -27,7 +30,6 @@ function snapshotOf(
   const revisable = toRevisableRecipe(values);
   return revisable
     ? {
-        values,
         base: revisionBaseOf(revisable.recipe, revisable.linked),
         target: { suggestionId, recipe: revisable.recipe },
       }
@@ -55,9 +57,8 @@ export function RevisableSuggestionForm({
   onSubmit,
   ...formProps
 }: RevisableSuggestionFormProps) {
-  const [values, setValues] = useState(initialValues);
-  /** Нов `key` = формата чете новите начални стойности (с приетата поправка). */
-  const [formKey, setFormKey] = useState(0);
+  /** Приетата поправка, приложена върху полетата на формата, както са сега. */
+  const [replacement, setReplacement] = useState<AiReplacement>();
   const [snapshot, setSnapshot] = useState(() =>
     revise ? snapshotOf(suggestionId, initialValues) : undefined,
   );
@@ -68,9 +69,9 @@ export function RevisableSuggestionForm({
   return (
     <>
       <RecipeForm
-        key={formKey}
         {...formProps}
-        initialValues={values}
+        initialValues={initialValues}
+        aiReplacement={replacement}
         onSubmit={(input) => onSubmit(input, acceptedRevision)}
         aiActions={(current) => {
           const disabled =
@@ -103,8 +104,10 @@ export function RevisableSuggestionForm({
           requestId={revisionId}
           onRequested={setRevisionId}
           onAccept={(accepted, revision) => {
-            setValues(revisedFormValues(snapshot.values, revision));
-            setFormKey((key) => key + 1);
+            setReplacement((current) => ({
+              key: (current?.key ?? 0) + 1,
+              apply: (values) => revisedFormValues(values, revision),
+            }));
             setAcceptedRevision(accepted);
             setRevisionId(undefined);
             setRevising(false);

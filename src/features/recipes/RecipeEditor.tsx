@@ -10,14 +10,18 @@ import { refusalOf } from '../../api/client';
 import { ErrorBox } from '../../components/ErrorBox';
 import { Spinner } from '../../components/Spinner';
 import { useRecipe, useSaveRecipe } from './queries';
-import { RecipeForm } from './RecipeForm';
+import { type AiReplacement, RecipeForm } from './RecipeForm';
 import { ReviseSheet } from './ReviseSheet';
 import {
   type RecipeFormValues,
   recipeToFormValues,
 } from './recipe-form-values';
 import { refinedFormValues, useRefinement } from './refinements';
-import { revisedFormValues, useRefreshRevision } from './revisions';
+import {
+  rebaseKeptFields,
+  revisedFormValues,
+  useRefreshRevision,
+} from './revisions';
 
 /**
  * Запис (`POST` без `id`, `PUT` с `id`) и после към прегледа на рецептата; с `revisionId` — с приетата поправка, а ако
@@ -100,19 +104,14 @@ export function parseEditRecipeSearch(
   };
 }
 
-/** Формата с приетата поправка: новите начални стойности и `key`, за да ги прочете. */
-interface RevisedForm {
-  key: string;
-  values: RecipeFormValues;
-}
-
 /**
  * „Редакция“ на `/recipes/$id/edit`: формата, попълнена с рецептата; записът я заменя (`PUT`) и води към прегледа.
  * С `?refine=<id>` формата започва с приетото подобрение на тази заявка (`refinedFormValues`); записът е обикновен
  * `PUT`, защото подобрението няма решение в api-то. С `?revise` се отваря листът „Поправи с AI“ (и бутонът над
- * стъпките го отваря): той продължава отворената поправка на рецептата, ако има такава. Приетата поправка влиза във
- * формата, а записът я маркира приета (`revisionId`); ако рецептата е записана след нея, листът се отваря пак с нея
- * остаряла. По `EditRecipeScreen` на family.
+ * стъпките го отваря): той продължава отворената поправка на рецептата, ако има такава. Приетата поправка влиза в
+ * полетата на формата, както са сега, а записът я маркира приета (`revisionId`); ако рецептата е записана след нея,
+ * листът се отваря пак с нея остаряла, а следващата приета поправка взима и по-новите полета, непроменени във формата.
+ * По `EditRecipeScreen` на family.
  */
 export function EditRecipeScreen() {
   const { id } = useParams({ from: '/recipes/$id/edit' });
@@ -127,9 +126,13 @@ export function EditRecipeScreen() {
    * поправка на рецептата, ако има такава, иначе иска указание.
    */
   const [revisionId, setRevisionId] = useState<string | null>();
-  /** Полетата на формата при отваряне на листа: към тях се добавя приетата поправка. */
-  const [snapshot, setSnapshot] = useState<RecipeFormValues>();
-  const [revised, setRevised] = useState<RevisedForm>();
+  /** Рецептата, с която формата се отвори: спрямо нея се вижда кои полета са променени във формата. */
+  const [loaded, setLoaded] = useState<Recipe>();
+  if (recipe.data && recipe.data.id !== loaded?.id) {
+    setLoaded(recipe.data);
+  }
+  /** Приетата поправка, приложена върху полетата на формата, както са сега. */
+  const [replacement, setReplacement] = useState<AiReplacement>();
   /** Приетата поправка във формата: записът я маркира приета. */
   const [acceptedRevision, setAcceptedRevision] = useState<string>();
   const refreshRevision = useRefreshRevision();
@@ -150,7 +153,7 @@ export function EditRecipeScreen() {
           ← Към рецептата
         </Link>
       </header>
-      {revised ? (
+      {replacement ? (
         <p className="edit-recipe__note" role="status">
           Поправката е във формата. Прегледай я и запиши.
         </p>
@@ -172,21 +175,19 @@ export function EditRecipeScreen() {
         />
       ) : (
         <RecipeForm
-          // Формата чете началните стойности само веднъж: друга рецепта, подобрение или поправка е нова форма.
-          key={`${recipe.data.id}:${refined ? refine : ''}:${revised?.key ?? ''}`}
-          initialValues={revised?.values ?? initialValues(recipe.data)}
+          // Формата чете началните стойности само веднъж: друга рецепта или подобрение е нова форма.
+          key={`${recipe.data.id}:${refined ? refine : ''}`}
+          initialValues={initialValues(loaded ?? recipe.data)}
+          aiReplacement={replacement}
           onSubmit={submit}
           isSubmitting={save.isPending}
           submitError={save.error}
           onCancel={() => void navigate({ to: '/recipes/$id', params: { id } })}
-          aiActions={(values) => (
+          aiActions={() => (
             <button
               type="button"
               className="button button--quiet"
-              onClick={() => {
-                setSnapshot(values);
-                setRevising(true);
-              }}
+              onClick={() => setRevising(true)}
             >
               Поправи с AI
             </button>
@@ -207,12 +208,17 @@ export function EditRecipeScreen() {
             setRevisionId(requested);
           }}
           onAccept={(accepted, revision) => {
-            const base =
-              snapshot ?? revised?.values ?? initialValues(recipe.data);
-            setRevised({
-              key: accepted,
-              values: revisedFormValues(base, revision),
-            });
+            // По-новата рецепта (след `revision_stale`) влиза в полетата, които формата не е променила.
+            const opened = initialValues(loaded ?? recipe.data);
+            const fresh = initialValues(recipe.data);
+            setReplacement((current) => ({
+              key: (current?.key ?? 0) + 1,
+              apply: (values) =>
+                revisedFormValues(
+                  rebaseKeptFields(values, opened, fresh),
+                  revision,
+                ),
+            }));
             setAcceptedRevision(accepted);
             setRevisionId(null);
             setRevising(false);
