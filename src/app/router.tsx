@@ -6,6 +6,7 @@ import {
   redirect,
 } from '@tanstack/react-router';
 import { RecipeList } from '../features/recipes/RecipeList';
+import { RecipeView } from '../features/recipes/RecipeView';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
 import { Placeholder } from './Placeholder';
@@ -32,7 +33,7 @@ const recipesRoute = createRoute({
   component: RecipeList,
 });
 
-// Временни екрани: следващите задачи (#5, #7, #9, #10) им дават истинския component.
+// Временни екрани: следващите задачи (#7, #9, #10) им дават истинския component.
 const newRecipeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/new',
@@ -54,7 +55,7 @@ const suggestRoute = createRoute({
 const recipeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/$id',
-  component: () => <Placeholder title="Рецепта" />,
+  component: RecipeView,
 });
 
 const routeTree = rootRoute.addChildren([

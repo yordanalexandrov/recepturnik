@@ -250,7 +250,11 @@ describe('Запазени филтри', () => {
     renderApp('/recipes');
 
     await expect.poll(shownTitles).toEqual(['Мусака']);
-    expect(searches[0]?.toString()).toBe('tag=dinner&time=60%2B');
+    // Списъкът и целият регистър (за брояча); нито една заявка не носи отпадналите стойности.
+    expect(searches.map(String).sort()).toEqual([
+      'includeArchived=true',
+      'tag=dinner&time=60%2B',
+    ]);
     expect(screen.getByRole('radio', { name: 'по име' })).toBeChecked();
     expect(
       screen.getByRole('checkbox', { name: 'Покажи архивираните' }),

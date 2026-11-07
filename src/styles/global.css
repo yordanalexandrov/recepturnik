@@ -167,13 +167,6 @@ h1 {
   border: 1px solid var(--color-border);
 }
 
-.badge {
-  padding: 0 0.375rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  font-size: 0.75rem;
-}
-
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -371,4 +364,149 @@ h1 {
 
 .stars-badge {
   color: var(--color-accent);
+}
+
+/* Преглед на рецепта: една колона на тесен екран; на широк — продуктите вляво, стъпките вдясно, а заглавната част,
+   подготовката и хранителната стойност са през двете колони (`recipe-view__wide`). */
+
+.recipe-view__back {
+  display: inline-block;
+  margin-bottom: var(--space);
+}
+
+.recipe-view__article {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space);
+}
+
+@media (min-width: 48rem) {
+  .recipe-view__article {
+    grid-template-columns: minmax(16rem, 1fr) 2fr;
+    gap: var(--space) calc(var(--space) * 2);
+    align-items: start;
+  }
+
+  .recipe-view__wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.recipe-view__header {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) / 2);
+}
+
+.recipe-view__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--space) / 2);
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.badge {
+  padding: 0 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+
+.recipe-view__section h2 {
+  font-size: 1.25rem;
+  margin: 0 0 calc(var(--space) / 2);
+}
+
+.recipe-view__section h3 {
+  font-size: 1rem;
+  margin: var(--space) 0 0.25rem;
+  color: var(--color-muted);
+}
+
+.recipe-view__lines,
+.preparation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recipe-view__line {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space);
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.preparation-item {
+  display: flex;
+  gap: calc(var(--space) / 2);
+  padding: 0.25rem 0;
+}
+
+.recipe-view__steps {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.recipe-view__steps > li {
+  padding: 0.25rem 0 calc(var(--space) / 2);
+}
+
+.recipe-view__step {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space);
+}
+
+/* Снимки на стъпки */
+
+.step-photo-thumbnail {
+  flex: none;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+}
+
+.step-photo-thumbnail__image {
+  display: block;
+  width: 5rem;
+  height: 5rem;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+.photo-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space);
+}
+
+.photo-viewer__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgb(0 0 0 / 0.85);
+  cursor: zoom-out;
+}
+
+.photo-viewer__image {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.photo-viewer__close {
+  position: absolute;
+  top: var(--space);
+  right: var(--space);
 }

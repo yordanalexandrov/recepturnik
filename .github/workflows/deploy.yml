@@ -1,0 +1,48 @@
+# Единственият workflow, който ползва self-hosted runner. Тръгва само от `master`; никога от PR (публично repo).
+# Runner: homesrv-recepturnik на homesrv с label recepturnik (infra/README.md). ci.yml пази правилото с
+# .github/scripts/check-workflows.sh. Логът на Actions в публично repo е публичен; deploy-ът няма secrets.
+name: deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Един deploy наведнъж: новият чака текущия, не го прекъсва (от няколко чакащи остава най-новият).
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # workflow_dispatch позволява избор на клон; deploy-ва се само master.
+    if: github.ref == 'refs/heads/master'
+    runs-on: [self-hosted, linux, recepturnik]
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # @family/shared се build-ва от изходния код на submodule-а (ADR-0002).
+          submodules: true
+          # След checkout-а git не трябва, затова токенът не остава в workspace-а на сървъра.
+          persist-credentials: false
+
+      # Пресъздава контейнера само при нов образ или нова конфигурация.
+      # prune: само висящите образи на този проект, не на другите стекове на homesrv (family).
+      - name: Deploy
+        run: |
+          docker compose -p recepturnik up -d --build --remove-orphans
+          docker image prune -f --filter label=com.docker.compose.project=recepturnik
+
+      # През Caddy, по пътя на cloudflared: /healthz стига api-то на family и базата, / е index.html.
+      - name: Smoke test
+        run: |
+          if ! sh infra/smoke.sh http://127.0.0.1:18092; then
+            docker compose -p recepturnik ps -a
+            docker compose -p recepturnik logs --tail 100 web
+            exit 1
+          fi

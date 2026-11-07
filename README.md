@@ -38,7 +38,14 @@ pnpm test       # Vitest + jsdom + Testing Library + msw
 pnpm build
 ```
 
-CI (`.github/workflows/ci.yml`) пуска същите четири проверки на всеки PR и push в `master`.
+CI (`.github/workflows/ci.yml`) пуска същите четири проверки на всеки PR и push в `master`, плюс проверката на
+workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на образа (`infra/check-image.sh`).
+
+## Deploy
+
+Всеки push в `master` се deploy-ва сам на homesrv (`.github/workflows/deploy.yml`, self-hosted runner с label
+`recepturnik`): Caddy със статиката на `127.0.0.1:18092`, `/api/*` и `/healthz` към api-то на family. Подробности,
+локална проверка и ръчните стъпки (runner, Cloudflare tunnel, Access) са в [infra/README.md](infra/README.md).
 
 ## Устройство
 
@@ -76,4 +83,5 @@ CI (`.github/workflows/ci.yml`) пуска същите четири прове�
   филтрира и подрежда като api-то (`q`, `tag`, `time`, `includeArchived`, `sort`).
 - `src/test/viewport.ts` — `setViewport('wide' | 'narrow')` имитира `matchMedia` (jsdom я няма); без него екранът
   е тесен. Нужно е за екрани, които се различават по ширина (напр. филтрите: панел или лист).
+- `src/test/recipe-detail.ts` — продукти, рецепта с редове и `serveRecipe(recipe)` (`GET /api/recipes/:id`).
 - Търси по роля и достъпно име; сменяй отговорите със `server.use(...)` в самия тест.

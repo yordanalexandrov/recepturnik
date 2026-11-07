@@ -1,0 +1,41 @@
+# Caddy в образа на Рецептурника (Dockerfile). Host мрежа, само loopback: cloudflared → http://localhost:18092.
+# TLS свършва в Cloudflare, затова Caddy говори само HTTP. api-то на family е на 127.0.0.1:$API_PORT (ADR-0001),
+# по подразбиране 18091; docker-compose.yml го подава.
+{
+	auto_https off
+	admin off
+}
+
+:18092 {
+	bind 127.0.0.1
+	# Не потока със събития (`GET /api/events`): компресиран, сигналите му могат да чакат в буфера на encoder-а.
+	@compressible not path /api/events
+	encode @compressible zstd gzip
+
+	handle /healthz {
+		reverse_proxy 127.0.0.1:{$API_PORT:18091}
+	}
+	handle /api/* {
+		reverse_proxy 127.0.0.1:{$API_PORT:18091}
+	}
+
+	# Hashed bundle-ите на Vite. Липсващ е 404, не index.html, кеширан за година.
+	handle /assets/* {
+		root * /srv
+		@exists file
+		header @exists Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# SPA-то. `route` пази реда: try_files вече е превърнал път на приложението (/recipes/…) в /index.html,
+	# когато се проверява @nocache, затова index.html винаги се проверява наново.
+	handle {
+		root * /srv
+		route {
+			try_files {path} /index.html
+			@nocache path / /index.html
+			header @nocache Cache-Control "no-cache"
+			file_server
+		}
+	}
+}
