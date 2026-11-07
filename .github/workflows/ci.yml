@@ -1,0 +1,38 @@
+# Само GitHub-hosted runner (публично repo): self-hosted runner-ът на homesrv е само за deploy.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # family (vendor/family) е публичен submodule: @family/shared се внася от изходния му код (ADR-0002).
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+      - run: sh .github/scripts/check-workflows.sh
+      - run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      # Образът от docker-compose.yml с фалшиво api: прокси, SPA fallback, кеширане, само 127.0.0.1:18092.
+      - run: sh infra/check-image.sh

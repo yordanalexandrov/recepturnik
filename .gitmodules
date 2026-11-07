@@ -1,0 +1,3 @@
+[submodule "vendor/family"]
+	path = vendor/family
+	url = https://github.com/yordanalexandrov/family.git

@@ -1,0 +1,4 @@
+# actionlint: custom label на self-hosted runner-а homesrv-recepturnik (infra/README.md).
+self-hosted-runner:
+  labels:
+    - recepturnik

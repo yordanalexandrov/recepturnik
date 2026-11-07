@@ -1,0 +1,1105 @@
+/*
+ * Семплият собствен вид на Рецептурника (ADR-0002: без CSS-а и token-ите на family).
+ * Цветовете и размерите са само тези CSS променливи; тъмната тема идва от системата.
+ * Широк екран: от 48rem нагоре (единствената граница; media query-тата не четат променливи, затова числото се повтаря).
+ */
+
+:root {
+  color-scheme: light dark;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --color-bg: #f7f7f5;
+  --color-surface: #ffffff;
+  --color-text: #1d1d1b;
+  --color-muted: #66665f;
+  --color-border: #deded8;
+  --color-accent: #1f6f5c;
+  --color-on-accent: #ffffff;
+  --color-danger: #a8321e;
+  --radius: 0.5rem;
+  --space: 1rem;
+  --content-width: 72rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #171716;
+    --color-surface: #222220;
+    --color-text: #ecece8;
+    --color-muted: #a3a39b;
+    --color-border: #3a3a36;
+    --color-accent: #6cc7ad;
+    --color-on-accent: #10201b;
+    --color-danger: #f08a75;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  line-height: 1.5;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+a {
+  color: var(--color-accent);
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+/* Рамка */
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--space) / 2) var(--space);
+  padding: calc(var(--space) / 2) var(--space);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.topbar__brand {
+  font-weight: 700;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.topbar__nav {
+  display: flex;
+  gap: calc(var(--space) / 2);
+  overflow-x: auto;
+}
+
+.topbar__nav a {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.topbar__nav a[data-status="active"] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+@media (min-width: 48rem) {
+  .topbar {
+    padding: var(--space) calc(var(--space) * 2);
+  }
+
+  .topbar__nav {
+    gap: var(--space);
+  }
+
+  .topbar__nav a {
+    font-size: 1rem;
+  }
+}
+
+.screen {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space);
+}
+
+.screen__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space);
+  margin-bottom: var(--space);
+}
+
+/* Общи елементи */
+
+.button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button--quiet {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Скрито от окото, но не и от екранния четец. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+}
+
+.error-box {
+  padding: var(--space);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.error-box p {
+  margin-top: 0;
+  color: var(--color-danger);
+}
+
+.spinner {
+  color: var(--color-muted);
+}
+
+.button--quiet {
+  background: transparent;
+  color: var(--color-accent);
+  border: 1px solid var(--color-border);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.chip[aria-pressed="true"],
+.chip:has(input:checked) {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* Лист: отдолу на телефон, прозорец в средата на широк екран. */
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgb(0 0 0 / 40%);
+}
+
+.sheet__panel {
+  position: relative;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: var(--space);
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--color-surface);
+}
+
+.sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space);
+}
+
+.sheet__header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+@media (min-width: 48rem) {
+  .sheet {
+    align-items: center;
+  }
+
+  .sheet__panel {
+    max-width: 32rem;
+    border-radius: var(--radius);
+  }
+}
+
+/* Регистър рецепти */
+
+.recipes__search {
+  flex: 1 1 16rem;
+  max-width: 24rem;
+}
+
+.recipes__empty {
+  padding: var(--space) 0;
+}
+
+.recipes__body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space);
+}
+
+.recipes__results {
+  min-width: 0;
+}
+
+.recipes__count {
+  margin: 0 0 calc(var(--space) / 2);
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+@media (min-width: 48rem) {
+  .recipes__body {
+    grid-template-columns: 16rem 1fr;
+    align-items: start;
+  }
+
+  .recipes__filters {
+    position: sticky;
+    top: var(--space);
+    padding: var(--space);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+  }
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space);
+}
+
+.filters__group {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.filters__group legend {
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.filters__check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.recipe-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: calc(var(--space) / 2);
+}
+
+@media (min-width: 48rem) {
+  .recipe-cards {
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--space);
+  }
+}
+
+.recipe-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  height: 100%;
+  padding: var(--space);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.recipe-card:hover,
+.recipe-card:focus-visible {
+  border-color: var(--color-accent);
+}
+
+.recipe-card__title {
+  font-weight: 600;
+}
+
+.recipe-card__meta {
+  display: flex;
+  gap: calc(var(--space) / 2);
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.recipe-card__tags {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.stars-badge {
+  color: var(--color-accent);
+}
+
+/* Звездите на оценката: бутони ≥ 44 px за пръст. */
+fieldset.stars {
+  display: inline-flex;
+  align-items: center;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.stars__star {
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.stars__star--on {
+  color: var(--color-accent);
+}
+
+.stars__star:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+  border-radius: var(--radius);
+}
+
+/* Преглед на рецепта: една колона на тесен екран; на широк — продуктите вляво, стъпките вдясно, а заглавната част,
+   подготовката и хранителната стойност са през двете колони (`recipe-view__wide`). */
+
+.recipe-view__back {
+  display: inline-block;
+  margin-bottom: var(--space);
+}
+
+.recipe-view__article {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space);
+}
+
+@media (min-width: 48rem) {
+  .recipe-view__article {
+    grid-template-columns: minmax(16rem, 1fr) 2fr;
+    gap: var(--space) calc(var(--space) * 2);
+    align-items: start;
+  }
+
+  .recipe-view__wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.recipe-view__header {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) / 2);
+}
+
+.recipe-view__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--space) / 2);
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.recipe-view__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--space) / 2);
+}
+
+.badge {
+  padding: 0 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+}
+
+.badge--revision {
+  border-color: currentColor;
+}
+
+.recipe-view__section h2 {
+  font-size: 1.25rem;
+  margin: 0 0 calc(var(--space) / 2);
+}
+
+.recipe-view__section h3 {
+  font-size: 1rem;
+  margin: var(--space) 0 0.25rem;
+  color: var(--color-muted);
+}
+
+.recipe-view__lines,
+.preparation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.recipe-view__line {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space);
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.preparation-item {
+  display: flex;
+  gap: calc(var(--space) / 2);
+  padding: 0.25rem 0;
+}
+
+.recipe-view__steps {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.recipe-view__steps > li {
+  padding: 0.25rem 0 calc(var(--space) / 2);
+}
+
+.recipe-view__step {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space);
+}
+
+/* Снимки на стъпки */
+
+.step-photo-thumbnail {
+  flex: none;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+}
+
+.step-photo-thumbnail__image {
+  display: block;
+  width: 5rem;
+  height: 5rem;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+.photo-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space);
+}
+
+.photo-viewer__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgb(0 0 0 / 0.85);
+  cursor: zoom-out;
+}
+
+.photo-viewer__image {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.photo-viewer__close {
+  position: absolute;
+  top: var(--space);
+  right: var(--space);
+}
+
+/* Полета и форма на рецепта: една колона на тесен екран; на широк — основните полета в решетка през цялата ширина,
+   продуктите вляво и стъпките вдясно. */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.field__label {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.field__error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--space) / 2);
+  margin-top: var(--space);
+}
+
+.recipe-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space);
+}
+
+.recipe-form__section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: calc(var(--space) / 2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--space);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.recipe-form__section > legend {
+  padding: 0 0.25rem;
+  font-weight: 700;
+}
+
+.recipe-form__section > .button {
+  align-self: flex-start;
+}
+
+.recipe-form__tags {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.recipe-form__tags > legend {
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.form-lines--numbered {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+
+.form-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--space) / 2);
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.form-line__open {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.25rem;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.form-line__linked {
+  color: var(--color-accent);
+}
+
+.form-line__error {
+  flex-basis: 100%;
+}
+
+/* Ред на стъпка със снимка: текстът и миниатюрата една до друга. */
+.form-line__open:has(.step-photo-thumbnail__image) {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space) / 2);
+}
+
+.form-line__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.form-hint {
+  margin: 0 0 0.5rem;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.recipe-form__component {
+  margin-top: var(--space);
+}
+
+.recipe-form__component-open {
+  padding: 0.25rem;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.step-photo-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(var(--space) / 2);
+  margin-top: var(--space);
+}
+
+.step-photo-field__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--space) / 2);
+}
+
+.step-photo-field__pick {
+  cursor: pointer;
+}
+
+.step-photo-field__pick:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.step-photo-field__pick--disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.step-photo-field__status {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.ingredient-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ingredient-picker__unresolved {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.ingredient-picker__options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.ingredient-picker__option {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ingredient-picker__option:hover,
+.ingredient-picker__option:focus-visible {
+  background: var(--color-bg);
+}
+
+.new-ingredient {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) / 2);
+  margin: calc(var(--space) / 2) 0 0;
+  padding: var(--space);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.recipe-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(var(--space) / 2);
+  margin-top: calc(var(--space) / 2);
+}
+
+.step-sheet__text {
+  width: 100%;
+  resize: vertical;
+}
+
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) / 2);
+  padding: var(--space) 0;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+}
+
+.action-bar__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: calc(var(--space) / 2);
+}
+
+.action-bar__text {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+@media (min-width: 48rem) {
+  .action-bar {
+    position: static;
+    border-top: none;
+  }
+
+  .recipe-form {
+    grid-template-columns: minmax(18rem, 1fr) 2fr;
+    align-items: start;
+  }
+
+  .recipe-form__basics,
+  .recipe-form > .action-bar {
+    grid-column: 1 / -1;
+  }
+
+  .recipe-form__basics {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr;
+    gap: var(--space);
+  }
+
+  .recipe-form__title {
+    grid-column: 1 / -1;
+  }
+
+  .recipe-form__tags {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Внасяне на рецепта (`features/recipe-import`) */
+
+.tabs {
+  display: flex;
+  gap: calc(var(--space) / 2);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space);
+}
+
+.tabs__tab {
+  padding: calc(var(--space) / 2) var(--space);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--color-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tabs__tab[aria-selected="true"] {
+  border-bottom-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.import-form {
+  display: grid;
+  gap: var(--space);
+  max-width: 48rem;
+  justify-items: start;
+}
+
+.import-form .field {
+  width: 100%;
+}
+
+.import-form__text {
+  min-height: 14rem;
+  resize: vertical;
+}
+
+.import-photo__previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--space) / 2);
+}
+
+.import-photo__preview,
+.import-subject__photo {
+  max-width: 12rem;
+  max-height: 16rem;
+  border-radius: var(--radius);
+  object-fit: contain;
+}
+
+.import-subject {
+  display: grid;
+  gap: calc(var(--space) / 2);
+  white-space: pre-line;
+  color: var(--color-muted);
+}
+
+.import-draft {
+  display: grid;
+  gap: calc(var(--space) / 2);
+  margin-bottom: var(--space);
+}
+
+.import-draft__note {
+  margin: 0;
+  padding: calc(var(--space) / 2) var(--space);
+  border-left: 3px solid var(--color-accent);
+  background: var(--color-surface);
+}
+
+.recent {
+  margin-top: calc(var(--space) * 2);
+}
+
+.recent__list {
+  display: grid;
+  gap: calc(var(--space) / 2);
+  padding: 0;
+  list-style: none;
+}
+
+.recent__link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: calc(var(--space) / 2);
+}
+
+.recent__date {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+/* AI предложения: формата за заявка, картите и прегледът. */
+.suggest-form,
+.suggestions__waiting {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+  margin-block: var(--space);
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+.suggestion-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space);
+}
+
+@media (min-width: 48rem) {
+  .suggestion-cards {
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  }
+}
+
+.suggestion-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+  padding: var(--space);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.suggestion-card h2,
+.suggestion-card h3,
+.suggestion-card p {
+  margin: 0;
+}
+
+.suggestion-card h3 {
+  font-size: 1rem;
+}
+
+.suggestion-card--rejected > :not(.suggestion-card__actions) {
+  opacity: 0.6;
+}
+
+.suggestion-card__products {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.suggestion-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.suggestion-review__note {
+  margin-bottom: var(--space);
+}
+
+/* „Подобри рецептата“ и сравнението на рецепти (`RecipeComparison`): колоните една под друга на телефон, една до друга
+   на широк екран. */
+
+.refine {
+  display: grid;
+  gap: var(--space);
+}
+
+.refine > p {
+  margin: 0;
+}
+
+.refine__note,
+.comparison__note,
+.edit-recipe__note {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.refine__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: calc(var(--space) / 2);
+}
+
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space);
+}
+
+.comparison__column {
+  min-width: 0;
+  padding: var(--space);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.comparison__heading {
+  margin: 0 0 calc(var(--space) / 2);
+  font-size: 1rem;
+}
+
+.comparison__subheading {
+  margin: 0 0 calc(var(--space) / 4);
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.comparison__steps {
+  margin: calc(var(--space) / 2) 0 0;
+  padding-left: 1.5rem;
+}
+
+.comparison__step {
+  margin-bottom: calc(var(--space) / 2);
+}
+
+.comparison__step > span {
+  display: block;
+}
+
+@media (min-width: 48rem) {
+  .sheet__panel--wide {
+    max-width: 64rem;
+  }
+
+  .comparison {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
