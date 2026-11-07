@@ -66,7 +66,7 @@ describe('Внеси рецепта → таб „Снимка“', () => {
     ).toBeInTheDocument();
     expect(forms).toEqual([
       {
-        url: expect.stringMatching(/\/api\/recipe-imports$/),
+        path: '/api/recipe-imports',
         contentType: null,
         files: [
           { field: 'photo', name: 'photo.jpg', type: 'image/jpeg', size: 10 },

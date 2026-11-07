@@ -131,6 +131,13 @@ function RecipeDetails({ recipe }: { recipe: Recipe }) {
         </p>
         {/* Действията над рецептата („Редактирай“ и архивът) са тук, в заглавната част. */}
         <div className="recipe-view__actions">
+          <Link
+            to="/recipes/$id/edit"
+            params={{ id: recipe.id }}
+            className="button button--quiet"
+          >
+            Редактирай
+          </Link>
           <button
             type="button"
             className="button button--quiet"

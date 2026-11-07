@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-/** One file of a form the app sent: its field, file name, type and size. */
+/** Един файл от формуляр, пратен от приложението: полето, името, типът и размерът му. */
 export interface SentFile {
   field: string;
   name: string;
@@ -8,17 +8,17 @@ export interface SentFile {
   size: number;
 }
 
-/** A request whose body was a FormData: where it went, its Content-Type header as the app set it, and its files. */
+/** Заявка с тяло `FormData`: пътят ѝ (без origin), Content-Type, както го е сложило приложението, и файловете ѝ. */
 export interface SentForm {
-  url: string;
+  path: string;
   contentType: string | null;
   files: SentFile[];
 }
 
 /**
- * Records the forms (`FormData` bodies) the app sends and lets each request go on without its body, for msw to answer.
- * Needed because jsdom's FormData holds jsdom's Blob, whose bytes Node's fetch cannot read, so msw never sees a
- * multipart body; the multipart parsing itself is the api's (its spec sends real forms).
+ * Записва формулярите (тела `FormData`), които приложението праща, и пуска всяка заявка без тялото ѝ, за да ѝ
+ * отговори msw. Нужно е, защото `FormData` на jsdom държи Blob на jsdom, чиито байтове fetch на Node не чете, и msw
+ * никога не вижда multipart тяло; самото разчитане на multipart е работа на api-то. Копие от family.
  */
 export function recordForms(): SentForm[] {
   const sent: SentForm[] = [];
@@ -39,7 +39,7 @@ export function recordForms(): SentForm[] {
       }
     }
     sent.push({
-      url: String(input),
+      path: new URL(String(input), window.location.href).pathname,
       contentType: new Headers(init.headers).get('content-type'),
       files,
     });

@@ -10,7 +10,11 @@ import {
   ImportScreen,
   parseImportSearch,
 } from '../features/recipe-import/ImportScreen';
-import { NewRecipeScreen } from '../features/recipes/RecipeEditor';
+import {
+  EditRecipeScreen,
+  NewRecipeScreen,
+  parseEditRecipeSearch,
+} from '../features/recipes/RecipeEditor';
 import { RecipeList } from '../features/recipes/RecipeList';
 import { RecipeView } from '../features/recipes/RecipeView';
 import { Layout } from './Layout';
@@ -72,6 +76,13 @@ const recipeRoute = createRoute({
   component: RecipeView,
 });
 
+const editRecipeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/recipes/$id/edit',
+  validateSearch: parseEditRecipeSearch,
+  component: () => <EditRecipeScreen />,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   recipesRoute,
@@ -80,6 +91,7 @@ const routeTree = rootRoute.addChildren([
   importRequestRoute,
   suggestRoute,
   recipeRoute,
+  editRecipeRoute,
 ]);
 
 /** Router-ът на приложението; тестовете подават history в памет (`src/test/render.tsx`). */

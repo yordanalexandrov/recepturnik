@@ -1,30 +1,33 @@
 import { Field } from '../../components/Field';
 import { Sheet } from '../../components/Sheet';
+import { StepPhotoField } from '../step-photos/StepPhotoField';
 
 interface StepSheetProps {
   /** Номерът на стъпката, от 1. */
   number: number;
   count: number;
   text: string;
+  photoId: string | undefined;
   /** Грешката на стъпката от последния опит за запис. */
   error?: string | undefined;
   onChange: (text: string) => void;
+  /** Новата снимка (вече качена) или `undefined` при „Махни“. */
+  onPhotoChange: (photoId: string | undefined) => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRemove: () => void;
   onClose: () => void;
 }
 
-/**
- * Лист за една стъпка в `RecipeForm`: текстът, „По-нагоре“, „По-надолу“ и „Премахни стъпка“. От family; снимката на
- * стъпката (`StepPhotoField`) идва с редакцията (#8).
- */
+/** Лист за една стъпка в `RecipeForm`: текстът, снимката, „По-нагоре“, „По-надолу“ и „Премахни стъпка“. От family. */
 export function StepSheet({
   number,
   count,
   text,
+  photoId,
   error,
   onChange,
+  onPhotoChange,
   onMoveUp,
   onMoveDown,
   onRemove,
@@ -43,6 +46,11 @@ export function StepSheet({
           />
         )}
       </Field>
+      <StepPhotoField
+        number={number}
+        photoId={photoId}
+        onChange={onPhotoChange}
+      />
       <div className="form-actions">
         <button
           type="button"

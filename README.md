@@ -70,9 +70,13 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   регистъра (`features/recipes/filters.ts`) се пазят в sessionStorage под `recepturnik.recipeFilters` и минават през
   `recipeFiltersSchema` при четене.
 - Формата на рецепта: `features/recipes/RecipeForm.tsx` (`initialValues` — празна, `recipeToFormValues(recipe)` или
-  чернова) с листовете `IngredientLineSheet` (`IngredientPicker`, `NewIngredientForm`) и `StepSheet`;
+  чернова) с листовете `IngredientLineSheet` (`IngredientPicker`, `NewIngredientForm`), `ComponentSheet`,
+  `StepSheet` (със `step-photos/StepPhotoField`) и `preparation/PreparationField` (`PreparationSheet`);
   `recipe-form-values.ts` е преобразуването форма ↔ `RecipeInput` от family (с проверката по `recipeInputSchema`).
-  `RecipeEditor.tsx`: `NewRecipeScreen`, `useSaveAndView(id?)` (запис и към прегледа).
+  `RecipeEditor.tsx`: `NewRecipeScreen`, `EditRecipeScreen` (`/recipes/$id/edit`, `PUT`; `seed` дава началните
+  стойности от рецептата, `parseEditRecipeSearch` чете `?revise`), `useSaveAndView(id?)` (запис и към прегледа).
+- Снимка на стъпка: `step-photos/queries.ts:useUploadStepPhoto` смалява в браузъра (`resize-step-photo.ts`, до
+  2000 px, JPEG, както във family) и качва веднага; стъпката сочи към нея от „Запази“ нататък.
 - Внасяне: `features/recipe-import/` — `ImportScreen` (`/recipes/import`, табове „Текст“/„Линк“/„Снимка“,
   `?tab=&url=&text=`, „Последни внасяния“) и `ImportRequestView` (`/recipes/import/$requestId`: пита на 3 s, докато е
   `pending`; черновата е във формата за нова рецепта, а „Запази“ одобрява предложението през
