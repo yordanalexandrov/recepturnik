@@ -29,8 +29,8 @@ describe('Преглед на рецепта', () => {
     expect(screen.getByText('обяд')).toBeInTheDocument();
     expect(screen.getByText('подходящо за дете')).toBeInTheDocument();
     expect(
-      screen.getByRole('img', { name: 'Оценка 4 от 5' }),
-    ).toBeInTheDocument();
+      screen.getByRole('group', { name: 'Оценка' }),
+    ).toHaveAccessibleDescription('4 от 5');
   });
 
   it('групира продуктите по щанд, с количество и единица', async () => {

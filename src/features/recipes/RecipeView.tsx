@@ -19,8 +19,8 @@ import {
   formatServings,
   sourceDomain,
 } from './format';
-import { useRecipe } from './queries';
-import { StarsBadge } from './Stars';
+import { useArchiveRecipe, useRateRecipe, useRecipe } from './queries';
+import { RatingStars } from './Stars';
 
 /** Прегледът на рецепта (`/recipes/$id`). Копие на `RecipeView` от family без Готвене, „Как мина?“ и устройствата. */
 export function RecipeView() {
@@ -84,6 +84,9 @@ function IngredientLines({
 }
 
 function RecipeDetails({ recipe }: { recipe: Recipe }) {
+  const rate = useRateRecipe();
+  const archive = useArchiveRecipe();
+  const archived = recipe.archivedAt !== null;
   const lines = linesByComponent(
     recipe.ingredients,
     recipe.components.length,
@@ -94,7 +97,11 @@ function RecipeDetails({ recipe }: { recipe: Recipe }) {
     <article className="recipe-view__article">
       <header className="recipe-view__header recipe-view__wide">
         <h1>{recipe.title}</h1>
-        <StarsBadge rating={recipe.rating} />
+        <RatingStars
+          rating={recipe.rating}
+          onRate={(rating) => rate.mutate({ id: recipe.id, rating })}
+        />
+        {rate.isError && <ErrorBox error={rate.error} />}
         <p className="recipe-view__meta">
           <span>{formatServings(recipe.servings)}</span>
           {recipe.prepMinutes !== undefined && (
@@ -111,6 +118,7 @@ function RecipeDetails({ recipe }: { recipe: Recipe }) {
               Уред: {applianceShortName(recipe.appliance)}
             </span>
           )}
+          {archived && <span className="badge">Архивирана</span>}
           {recipe.sourceUrl && (
             <a
               href={recipe.sourceUrl}
@@ -121,7 +129,20 @@ function RecipeDetails({ recipe }: { recipe: Recipe }) {
             </a>
           )}
         </p>
-        {/* Действията над рецептата (оценка, архив, „Редактирай“) влизат тук, в заглавната част. */}
+        {/* Действията над рецептата („Редактирай“ и архивът) са тук, в заглавната част. */}
+        <div className="recipe-view__actions">
+          <button
+            type="button"
+            className="button button--quiet"
+            disabled={archive.isPending}
+            onClick={() =>
+              archive.mutate({ id: recipe.id, archived: !archived })
+            }
+          >
+            {archived ? 'Върни' : 'Архивирай'}
+          </button>
+        </div>
+        {archive.isError && <ErrorBox error={archive.error} />}
       </header>
 
       {recipe.preparation.length > 0 && (

@@ -136,6 +136,27 @@ h1 {
   cursor: pointer;
 }
 
+.button--quiet {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Скрито от окото, но не и от екранния четец. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .input {
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--color-border);
@@ -226,6 +247,38 @@ h1 {
   color: var(--color-accent);
 }
 
+/* Звездите на оценката: бутони ≥ 44 px за пръст. */
+fieldset.stars {
+  display: inline-flex;
+  align-items: center;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.stars__star {
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.stars__star--on {
+  color: var(--color-accent);
+}
+
+.stars__star:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+  border-radius: var(--radius);
+}
+
 /* Преглед на рецепта: една колона на тесен екран; на широк — продуктите вляво, стъпките вдясно, а заглавната част,
    подготовката и хранителната стойност са през двете колони (`recipe-view__wide`). */
 
@@ -265,6 +318,12 @@ h1 {
   gap: calc(var(--space) / 2);
   margin: 0;
   color: var(--color-muted);
+}
+
+.recipe-view__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--space) / 2);
 }
 
 .badge {
