@@ -3,7 +3,7 @@ import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import { ErrorBox } from '../../components/ErrorBox';
 import { Sheet } from '../../components/Sheet';
 import { Spinner } from '../../components/Spinner';
-import { failureMessage } from '../../lib/ai-requests';
+import { failureMessage } from '../ai/ai-requests';
 import { componentHeading, formatMinutes } from './format';
 import { ComparisonColumn, RecipeComparison } from './RecipeComparison';
 import { useRefinement, useRequestRefinement } from './refinements';

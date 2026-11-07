@@ -61,7 +61,8 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   `errorText(error)` е същият текст за toast.
 - `src/app/` — `router.tsx` (code-based routes, същите пътища като във family; нов екран = `createRoute` +
   `addChildren`), `Layout.tsx` (горната навигация), `query-client.ts` (повтаря само мрежа и 5xx).
-  `Placeholder.tsx` пази местата на екраните от следващите задачи.
+- `src/features/ai/ai-requests.ts` — общото на AI заявките (предложения, внасяне): `POLL_INTERVAL_MS`,
+  `REQUEST_STATUS_LABELS`, `failureMessage(kind, request)` (без кодове), `formatRequestTime`.
 - `src/components/Sheet.tsx` — лист („Готово“, Escape, фон; `focusField` — фокус на първото поле);
   `ChoiceChips.tsx` (чипове за мулти избор), `Field.tsx` (етикет, поле, грешка), `ActionBar.tsx` (лентата със
   „Запази“/„Откажи“); `src/lib/use-media-query.ts:useWideScreen()` —
@@ -77,12 +78,23 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   стойности от рецептата, `parseEditRecipeSearch` чете `?revise`), `useSaveAndView(id?)` (запис и към прегледа).
 - Снимка на стъпка: `step-photos/queries.ts:useUploadStepPhoto` смалява в браузъра (`resize-step-photo.ts`, до
   2000 px, JPEG, както във family) и качва веднага; стъпката сочи към нея от „Запази“ нататък.
+- AI предложения: `features/suggestions/` — `SuggestScreen` (`/recipes/suggest`: хранене, време, тагове,
+  подсказка; уредите само за четене; последните заявки), `SuggestionRequestView` (`/recipes/suggest/$requestId`:
+  пита на `POLL_INTERVAL_MS`, докато е `pending`; картите или защо е неуспешна и „Опитай пак“), `SuggestionCard`
+  (действията по статуса в `SuggestionActions`: „Приеми“, „Отхвърли“, „Върни“ — там влизат и следващите действия
+  върху предложение) и `SuggestionReview` (`/recipes/suggest/$requestId/$suggestionId`: предложението в
+  `RecipeForm`, „Запази“ = `approve`). Нищо не се записва в менюто на family.
+- Внасяне: `features/recipe-import/` — `ImportScreen` (`/recipes/import`, табове „Текст“/„Линк“/„Снимка“,
+  `?tab=&url=&text=`, „Последни внасяния“) и `ImportRequestView` (`/recipes/import/$requestId`: пита на 3 s, докато е
+  `pending`; черновата е във формата за нова рецепта, а „Запази“ одобрява предложението през
+  `/api/recipe-suggestions/:id/approve` — `useApproveSuggestion` от `suggestions/queries.ts`). Без share target на family. Създаден „Нов продукт“ свързва и другите редове
+  със същия предложен нов продукт.
 - „Подобри рецептата“: бутонът на прегледа отваря `features/recipes/RefineSheet.tsx`, който пуска заявката
   (`refinements.ts`: `useRequestRefinement`, `useRefinement` пита на 3 s, докато е `pending`) и показва сравнението.
   „Приеми“ води към `/recipes/$id/edit?refine=<id на заявката>`; формата започва с `refinedFormValues(recipe,
   refinement)` (стъпки, подготовка, време) и записът е обикновен `PUT`. Сравнението е `RecipeComparison` +
   `ComparisonColumn` (колони една под друга на телефон, една до друга от 48rem; ползва го и „Поправи с AI“), а
-  съобщенията за неуспешна AI заявка — `src/lib/ai-requests.ts:failureMessage(kind, request)`.
+  съобщенията за неуспешна AI заявка — `features/ai/ai-requests.ts:failureMessage(kind, request)`.
 - `src/styles/global.css` — целият CSS: системен шрифт, CSS променливите на `:root`, тъмна тема по
   `prefers-color-scheme`, една граница за широк екран (48rem). Без стиловете на family.
 
@@ -102,6 +114,11 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - `src/test/recipe-detail.ts` — продукти, рецепта с редове и `serveRecipe(recipe)` (`GET /api/recipes/:id`).
 - `src/test/recipe-form.ts` — `serveForm()` (уреди, търсене на продукти, `POST /api/recipes`; връща телата),
   `serveAppliances`, `serveIngredientSearch`, `mint` (продукт за „Нов продукт“).
+- `src/test/suggestions.ts` — заявки и предложения; `serveRequestSuggestions` (POST, връща телата),
+  `serveRecentRequests`, `serveDetail(...states)` (поредни състояния за проверката на `pending`) и
+  `serveDecisions(detail)` (заявката с `approve`/`reject`/`restore`, които сменят статуса).
+- `src/test/imports.ts` — внасяне, чернова и `serveImport(...states)` (`GET` на внасянето минава през състоянията);
+  `src/test/form-data.ts:recordForms()` — снимките (multipart) не стигат до msw, затова формите се записват от fetch.
 - `src/test/refinements.ts` — подобрение на „Пиле с песто“ и `serveRefinement(finished, pendingPolls)` (`POST` и
   четенето на заявката; брои пусканията).
 - Търси по роля и достъпно име; сменяй отговорите със `server.use(...)` в самия тест.

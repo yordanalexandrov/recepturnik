@@ -5,6 +5,11 @@ import {
   type RouterHistory,
   redirect,
 } from '@tanstack/react-router';
+import { ImportRequestView } from '../features/recipe-import/ImportRequestView';
+import {
+  ImportScreen,
+  parseImportSearch,
+} from '../features/recipe-import/ImportScreen';
 import {
   EditRecipeScreen,
   NewRecipeScreen,
@@ -12,9 +17,11 @@ import {
 } from '../features/recipes/RecipeEditor';
 import { RecipeList } from '../features/recipes/RecipeList';
 import { RecipeView } from '../features/recipes/RecipeView';
+import { SuggestionRequestView } from '../features/suggestions/SuggestionRequestView';
+import { SuggestionReview } from '../features/suggestions/SuggestionReview';
+import { SuggestScreen } from '../features/suggestions/SuggestScreen';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
-import { Placeholder } from './Placeholder';
 
 // Пътищата са същите като във family (спец #1, „Пътища“), за да работи един линк и в двете приложения.
 // Code-based routes: всеки екран е `createRoute` тук и влиза в `rootRoute.addChildren`.
@@ -44,17 +51,37 @@ const newRecipeRoute = createRoute({
   component: () => <NewRecipeScreen />,
 });
 
-// Временни екрани: следващите задачи (#9, #10) им дават истинския component.
 const importRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/import',
-  component: () => <Placeholder title="Внеси рецепта" />,
+  validateSearch: parseImportSearch,
+  component: ImportScreen,
 });
+
+const importRequestRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/recipes/import/$requestId',
+  component: ImportRequestView,
+});
+
+// Временен екран: #10 му дава истинския component.
 
 const suggestRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/suggest',
-  component: () => <Placeholder title="Предложения" />,
+  component: SuggestScreen,
+});
+
+const suggestionRequestRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/recipes/suggest/$requestId',
+  component: SuggestionRequestView,
+});
+
+const suggestionReviewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/recipes/suggest/$requestId/$suggestionId',
+  component: SuggestionReview,
 });
 
 const recipeRoute = createRoute({
@@ -75,7 +102,10 @@ const routeTree = rootRoute.addChildren([
   recipesRoute,
   newRecipeRoute,
   importRoute,
+  importRequestRoute,
   suggestRoute,
+  suggestionRequestRoute,
+  suggestionReviewRoute,
   recipeRoute,
   editRecipeRoute,
 ]);

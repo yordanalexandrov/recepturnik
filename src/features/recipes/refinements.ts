@@ -6,7 +6,7 @@ import {
 } from '@family/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../api/client';
-import { POLL_INTERVAL_MS } from '../../lib/ai-requests';
+import { POLL_INTERVAL_MS } from '../ai/ai-requests';
 import { preparationToValues } from '../preparation/preparation-values';
 import {
   type RecipeFormValues,
