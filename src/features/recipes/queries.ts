@@ -1,10 +1,16 @@
 import {
+  type CreateIngredient,
+  type Ingredient,
+  ingredientConflictSchema,
+  ingredientResponseSchema,
+  ingredientsResponseSchema,
   type PrepTimeRange,
   putRatingSchema,
   type Rating,
   type Recipe,
   type RecipeSummary,
   type RecipesSort,
+  type ReplaceRecipeInput,
   recipeResponseSchema,
   recipesResponseSchema,
   type Tag,
@@ -16,7 +22,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { apiFetch, JSON_HEADERS } from '../../api/client';
+import { ApiError, apiFetch, JSON_HEADERS } from '../../api/client';
 
 /** Параметрите на `GET /api/recipes` (`recipesQuerySchema`); празните не влизат в query-то. */
 export interface RecipesParams {
@@ -34,6 +40,7 @@ export const recipeKeys = {
   /** По query низа: еднаквите филтри (празни или пропуснати) дават едно query. */
   list: (search: string) => ['recipes', 'list', search] as const,
   detail: (id: string) => ['recipes', 'detail', id] as const,
+  ingredientSearch: (q: string) => ['ingredients', 'search', q] as const,
 };
 
 export function recipesSearch(params: RecipesParams): string {
@@ -156,6 +163,80 @@ export function useRateRecipe() {
     },
     onSettled() {
       void queryClient.invalidateQueries({ queryKey: recipeKeys.lists });
+    },
+  });
+}
+
+/** Без `id` създава (`POST`), с `id` заменя (`PUT`) цялата рецепта. */
+export function useSaveRecipe() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id?: string; input: ReplaceRecipeInput }) =>
+      apiFetch(id ? `/recipes/${id}` : '/recipes', recipeResponseSchema, {
+        method: id ? 'PUT' : 'POST',
+        headers: JSON_HEADERS,
+        body: JSON.stringify(input),
+      }).then((body) => body.recipe),
+    onSuccess(recipe) {
+      storeRecipe(queryClient, recipe);
+    },
+  });
+}
+
+/** Търсене на продукти по `q` (без празни места отстрани). */
+export function ingredientSearchQuery(q: string) {
+  const query = q.trim();
+  return {
+    queryKey: recipeKeys.ingredientSearch(query),
+    queryFn: () =>
+      apiFetch(
+        `/ingredients?${new URLSearchParams({ q: query })}`,
+        ingredientsResponseSchema,
+      ).then((body) => body.ingredients),
+  };
+}
+
+/** Autocomplete на продукти; празен `q` не пита. */
+export function useIngredientSearch(q: string) {
+  return useQuery({
+    ...ingredientSearchQuery(q),
+    enabled: q.trim().length > 0,
+    placeholderData: keepPreviousData,
+  });
+}
+
+/** Резултат от „Нов продукт“: създаден или вече съществуващ със същото канонично име (409). */
+export type CreateIngredientResult =
+  | { status: 'created'; ingredient: Ingredient }
+  | { status: 'exists'; ingredient: Ingredient };
+
+/** `POST /api/ingredients`; 409 с продукта значи, че той вече съществува. */
+export function useCreateIngredient() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      input: CreateIngredient,
+    ): Promise<CreateIngredientResult> => {
+      try {
+        const body = await apiFetch('/ingredients', ingredientResponseSchema, {
+          method: 'POST',
+          headers: JSON_HEADERS,
+          body: JSON.stringify(input),
+        });
+        return { status: 'created', ingredient: body.ingredient };
+      } catch (error) {
+        const conflict =
+          error instanceof ApiError && error.status === 409
+            ? ingredientConflictSchema.safeParse(error.body)
+            : undefined;
+        if (conflict?.success) {
+          return { status: 'exists', ingredient: conflict.data.ingredient };
+        }
+        throw error;
+      }
+    },
+    onSuccess() {
+      void queryClient.invalidateQueries({ queryKey: ['ingredients'] });
     },
   });
 }

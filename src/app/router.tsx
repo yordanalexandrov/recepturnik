@@ -5,6 +5,7 @@ import {
   type RouterHistory,
   redirect,
 } from '@tanstack/react-router';
+import { NewRecipeScreen } from '../features/recipes/RecipeEditor';
 import { RecipeList } from '../features/recipes/RecipeList';
 import { RecipeView } from '../features/recipes/RecipeView';
 import { Layout } from './Layout';
@@ -33,13 +34,13 @@ const recipesRoute = createRoute({
   component: RecipeList,
 });
 
-// Временни екрани: следващите задачи (#7, #9, #10) им дават истинския component.
 const newRecipeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/new',
-  component: () => <Placeholder title="Нова рецепта" />,
+  component: () => <NewRecipeScreen />,
 });
 
+// Временни екрани: следващите задачи (#9, #10) им дават истинския component.
 const importRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/import',

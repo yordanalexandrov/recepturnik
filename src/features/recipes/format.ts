@@ -57,6 +57,11 @@ export function componentHeading(component: RecipeComponent): string {
   return `${component.name} · за ${formatServings(component.servings)}`;
 }
 
+/** Името на компонент във формата, докато се пише: празното е „Компонент без име“. Копие от family. */
+export function componentName(name: string): string {
+  return name.trim() || 'Компонент без име';
+}
+
 /** Домейнът на източника за показване: „https://www.example.com/x“ → „example.com“; невалиден адрес — както е. */
 export function sourceDomain(url: string): string {
   try {

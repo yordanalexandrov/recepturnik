@@ -62,11 +62,17 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - `src/app/` — `router.tsx` (code-based routes, същите пътища като във family; нов екран = `createRoute` +
   `addChildren`), `Layout.tsx` (горната навигация), `query-client.ts` (повтаря само мрежа и 5xx).
   `Placeholder.tsx` пази местата на екраните от следващите задачи.
-- `src/components/Sheet.tsx` — лист („Готово“, Escape, фон); `src/lib/use-media-query.ts:useWideScreen()` —
+- `src/components/Sheet.tsx` — лист („Готово“, Escape, фон; `focusField` — фокус на първото поле);
+  `ChoiceChips.tsx` (чипове за мулти избор), `Field.tsx` (етикет, поле, грешка), `ActionBar.tsx` (лентата със
+  „Запази“/„Откажи“); `src/lib/use-media-query.ts:useWideScreen()` —
   широк екран (48rem) в JS, когато екранът се различава не само по CSS.
 - `src/features/<feature>/` — екраните и заявките им (`queries.ts` с ключовете на TanStack Query). Филтрите на
   регистъра (`features/recipes/filters.ts`) се пазят в sessionStorage под `recepturnik.recipeFilters` и минават през
   `recipeFiltersSchema` при четене.
+- Формата на рецепта: `features/recipes/RecipeForm.tsx` (`initialValues` — празна, `recipeToFormValues(recipe)` или
+  чернова) с листовете `IngredientLineSheet` (`IngredientPicker`, `NewIngredientForm`) и `StepSheet`;
+  `recipe-form-values.ts` е преобразуването форма ↔ `RecipeInput` от family (с проверката по `recipeInputSchema`).
+  `RecipeEditor.tsx`: `NewRecipeScreen`, `useSaveAndView(id?)` (запис и към прегледа).
 - `src/styles/global.css` — целият CSS: системен шрифт, CSS променливите на `:root`, тъмна тема по
   `prefers-color-scheme`, една граница за широк екран (48rem). Без стиловете на family.
 
@@ -84,4 +90,6 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - `src/test/viewport.ts` — `setViewport('wide' | 'narrow')` имитира `matchMedia` (jsdom я няма); без него екранът
   е тесен. Нужно е за екрани, които се различават по ширина (напр. филтрите: панел или лист).
 - `src/test/recipe-detail.ts` — продукти, рецепта с редове и `serveRecipe(recipe)` (`GET /api/recipes/:id`).
+- `src/test/recipe-form.ts` — `serveForm()` (уреди, търсене на продукти, `POST /api/recipes`; връща телата),
+  `serveAppliances`, `serveIngredientSearch`, `mint` (продукт за „Нов продукт“).
 - Търси по роля и достъпно име; сменяй отговорите със `server.use(...)` в самия тест.

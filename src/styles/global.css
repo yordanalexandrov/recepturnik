@@ -569,3 +569,226 @@ fieldset.stars {
   top: var(--space);
   right: var(--space);
 }
+
+/* Полета и форма на рецепта: една колона на тесен екран; на широк — основните полета в решетка през цялата ширина,
+   продуктите вляво и стъпките вдясно. */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.field__label {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.field__error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--space) / 2);
+  margin-top: var(--space);
+}
+
+.recipe-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space);
+}
+
+.recipe-form__section {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: calc(var(--space) / 2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--space);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.recipe-form__section > legend {
+  padding: 0 0.25rem;
+  font-weight: 700;
+}
+
+.recipe-form__section > .button {
+  align-self: flex-start;
+}
+
+.recipe-form__tags {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.recipe-form__tags > legend {
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.form-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.form-lines--numbered {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+
+.form-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--space) / 2);
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.form-line__open {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.25rem;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.form-line__linked {
+  color: var(--color-accent);
+}
+
+.form-line__error {
+  flex-basis: 100%;
+}
+
+.ingredient-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ingredient-picker__unresolved {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.ingredient-picker__options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.ingredient-picker__option {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ingredient-picker__option:hover,
+.ingredient-picker__option:focus-visible {
+  background: var(--color-bg);
+}
+
+.new-ingredient {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) / 2);
+  margin: calc(var(--space) / 2) 0 0;
+  padding: var(--space);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.recipe-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(var(--space) / 2);
+  margin-top: calc(var(--space) / 2);
+}
+
+.step-sheet__text {
+  width: 100%;
+  resize: vertical;
+}
+
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) / 2);
+  padding: var(--space) 0;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+}
+
+.action-bar__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: calc(var(--space) / 2);
+}
+
+.action-bar__text {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+@media (min-width: 48rem) {
+  .action-bar {
+    position: static;
+    border-top: none;
+  }
+
+  .recipe-form {
+    grid-template-columns: minmax(18rem, 1fr) 2fr;
+    align-items: start;
+  }
+
+  .recipe-form__basics,
+  .recipe-form > .action-bar {
+    grid-column: 1 / -1;
+  }
+
+  .recipe-form__basics {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr;
+    gap: var(--space);
+  }
+
+  .recipe-form__title {
+    grid-column: 1 / -1;
+  }
+
+  .recipe-form__tags {
+    grid-column: 1 / -1;
+  }
+}

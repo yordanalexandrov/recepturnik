@@ -8,55 +8,13 @@ import {
   type Tag,
   tagSchema,
 } from '@family/shared';
+import { ChoiceChips, toggled } from '../../components/ChoiceChips';
 import { hasFilters, NO_FILTERS, type RecipeFilters } from './filters';
 
 const SORT_LABELS: Record<RecipesSort, string> = {
   title: 'по име',
   rating: 'по оценка',
 };
-
-/** `list` с `value`, ако го няма, иначе без него: мулти изборът след натискане на чип. */
-function toggled<T>(list: readonly T[], value: T): T[] {
-  return list.includes(value)
-    ? list.filter((item) => item !== value)
-    : [...list, value];
-}
-
-interface ChoiceChipsProps<T extends string> {
-  label: string;
-  options: readonly T[];
-  labels: Record<T, string>;
-  selected: readonly T[];
-  onToggle: (value: T) => void;
-}
-
-/** Фиксиран списък стойности като toggle бутони (`aria-pressed`); може да са избрани няколко. */
-function ChoiceChips<T extends string>({
-  label,
-  options,
-  labels,
-  selected,
-  onToggle,
-}: ChoiceChipsProps<T>) {
-  return (
-    <fieldset className="filters__group">
-      <legend>{label}</legend>
-      <div className="chips">
-        {options.map((value) => (
-          <button
-            key={value}
-            type="button"
-            className="chip"
-            aria-pressed={selected.includes(value)}
-            onClick={() => onToggle(value)}
-          >
-            {labels[value]}
-          </button>
-        ))}
-      </div>
-    </fieldset>
-  );
-}
 
 /** Полетата на филтрите (в страничния панел или в листа „Филтри“); всеки избор се прилага веднага. */
 export function RecipeFiltersFields({

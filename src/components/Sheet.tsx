@@ -4,16 +4,36 @@ interface SheetProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  /** Фокусът при отваряне отива на първото поле в листа (за писане веднага), а не на „Готово“. */
+  focusField?: boolean;
 }
+
+const FIELD = 'input:not([disabled]), textarea:not([disabled]), select';
 
 /**
  * Лист върху екрана (на телефон отдолу): „Готово“ в заглавието, Escape и фонът го затварят. Фокусът отива на „Готово“
- * при отваряне. По-прост от листа на family: без плъзгане и без запис в историята.
+ * (или на първото поле с `focusField`) при отваряне и се връща там, откъдето листът е отворен, при затваряне.
+ * По-прост от листа на family: без плъзгане и без запис в историята.
  */
-export function Sheet({ title, onClose, children }: SheetProps) {
+export function Sheet({ title, onClose, children, focusField }: SheetProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  // Само при отваряне: ново изобразяване на родителя не мести фокуса.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `focusField` се чете при отваряне.
   useEffect(() => {
-    closeRef.current?.focus();
+    const opener =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const field = focusField
+      ? panelRef.current?.querySelector<HTMLElement>(FIELD)
+      : null;
+    (field ?? closeRef.current)?.focus();
+    return () => {
+      if (opener?.isConnected) {
+        opener.focus();
+      }
+    };
   }, []);
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -35,6 +55,7 @@ export function Sheet({ title, onClose, children }: SheetProps) {
         onClick={onClose}
       />
       <section
+        ref={panelRef}
         className="sheet__panel"
         role="dialog"
         aria-modal="true"
