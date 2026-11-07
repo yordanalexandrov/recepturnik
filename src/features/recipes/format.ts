@@ -1,3 +1,9 @@
+import {
+  type RecipeComponent,
+  type RecipeLine,
+  UNIT_LABELS_BG,
+} from '@family/shared';
+
 export const MINUTES_PER_HOUR = 60;
 const MINUTES_PER_DAY = 24 * MINUTES_PER_HOUR;
 
@@ -18,4 +24,49 @@ export function formatMinutes(minutes: number): string {
   const hours = Math.floor(minutes / MINUTES_PER_HOUR);
   const rest = minutes % MINUTES_PER_HOUR;
   return rest > 0 ? `${hours} ч ${rest} мин` : `${hours} ч`;
+}
+
+const numberFormat = new Intl.NumberFormat('bg-BG', {
+  maximumFractionDigits: 3,
+});
+
+export function formatNumber(value: number): string {
+  return numberFormat.format(value);
+}
+
+/** „500 г“, „2 бр.“, „по вкус“; без количество — нищо (само единицата не се показва). Копие от family. */
+export function formatQuantity(
+  line: Pick<RecipeLine, 'quantity' | 'unit'>,
+): string {
+  if (line.unit === 'pinch') {
+    return UNIT_LABELS_BG.pinch;
+  }
+  if (line.quantity === null) {
+    return '';
+  }
+  return `${formatNumber(line.quantity)} ${UNIT_LABELS_BG[line.unit]}`;
+}
+
+/** „1 порция“, „3 порции“, „0 порции“. */
+export function formatServings(count: number): string {
+  return count === 1 ? '1 порция' : `${count} порции`;
+}
+
+/** Заглавието на компонент в рецептата: „Песто · за 5 порции“. */
+export function componentHeading(component: RecipeComponent): string {
+  return `${component.name} · за ${formatServings(component.servings)}`;
+}
+
+/** Домейнът на източника за показване: „https://www.example.com/x“ → „example.com“; невалиден адрес — както е. */
+export function sourceDomain(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
+}
+
+/** Кратко име на уред: видът без модела и възможностите („air fryer (Philips …) — …“ → „air fryer“). */
+export function applianceShortName(name: string): string {
+  return name.split(/ \(| — /)[0]?.trim() || name;
 }

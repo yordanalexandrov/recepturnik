@@ -1,6 +1,7 @@
 import {
   type PrepTimeRange,
   type RecipesSort,
+  recipeResponseSchema,
   recipesResponseSchema,
   type Tag,
 } from '@family/shared';
@@ -57,5 +58,16 @@ export function useRecipes(params: RecipesParams) {
       ),
     // Докато се пише в търсенето, старият списък остава на екрана.
     placeholderData: keepPreviousData,
+  });
+}
+
+/** Рецептата за преглед: `GET /api/recipes/:id` (404 `not_found` за непозната). */
+export function useRecipe(id: string) {
+  return useQuery({
+    queryKey: recipeKeys.detail(id),
+    queryFn: () =>
+      apiFetch(`/recipes/${id}`, recipeResponseSchema).then(
+        (body) => body.recipe,
+      ),
   });
 }

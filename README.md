@@ -69,4 +69,5 @@ CI (`.github/workflows/ci.yml`) пуска същите четири прове�
   `accessRedirect()` (изтекла сесия), `networkFailure()`, `recordRequests()` (headers на всяка заявка).
   Заявка без handler проваля теста.
 - `src/test/recipes.ts` — фикстури, минали през schema-ите от `@family/shared`, и `serveRecipes(recipes)`.
+- `src/test/recipe-detail.ts` — продукти, рецепта с редове и `serveRecipe(recipe)` (`GET /api/recipes/:id`).
 - Търси по роля и достъпно име; сменяй отговорите със `server.use(...)` в самия тест.
