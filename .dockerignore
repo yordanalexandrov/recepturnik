@@ -1,0 +1,27 @@
+# Build контекстът е това, което Dockerfile-ът иска: изходния код, manifest-ите, lockfile-а, infra/caddy и
+# изходния код на @family/shared от submodule-а. Локалните инсталации и build-ът никога не влизат.
+**/node_modules
+**/dist
+**/coverage
+**/*.tsbuildinfo
+**/*.log
+.git
+.env
+.env.*
+
+# От family трябва само packages/shared (ADR-0002) и tsconfig.base.json, който tsconfig-ът му разширява
+# (Vite го чете при transform); останалото само би развалило кеша.
+vendor/family/*
+!vendor/family/tsconfig.base.json
+!vendor/family/packages
+vendor/family/packages/*
+!vendor/family/packages/shared
+
+# Не трябват на образа; извън контекста кешът остава валиден, когато се сменят само те.
+.github
+docs
+**/*.md
+infra/*.sh
+docker-compose*.yml
+Dockerfile
+.dockerignore
