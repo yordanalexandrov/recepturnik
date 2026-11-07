@@ -1,11 +1,13 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useRequestSuggestions } from './queries';
-import { RecentRequests } from './RecentRequests';
+import { RecentAiRequests } from '../ai/RecentAiRequests';
+import { requestLabel } from './messages';
+import { useRecentRequests, useRequestSuggestions } from './queries';
 import { SuggestForm } from './SuggestForm';
 
 /** `/recipes/suggest`: формата за заявка и последните заявки под нея. */
 export function SuggestScreen() {
   const requestSuggestions = useRequestSuggestions();
+  const recentRequests = useRecentRequests();
   const navigate = useNavigate();
   return (
     <main className="screen">
@@ -27,7 +29,13 @@ export function SuggestScreen() {
           })
         }
       />
-      <RecentRequests />
+      <RecentAiRequests
+        title="Последни заявки"
+        empty="Още няма заявки."
+        requests={recentRequests}
+        to="/recipes/suggest/$requestId"
+        label={requestLabel}
+      />
     </main>
   );
 }

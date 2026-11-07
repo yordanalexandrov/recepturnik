@@ -963,17 +963,11 @@ fieldset.stars {
 
 /* AI предложения: формата за заявка, картите и прегледът. */
 .suggest-form,
-.suggestions__waiting,
-.suggestions__recent {
+.suggestions__waiting {
   display: flex;
   flex-direction: column;
   gap: var(--space);
   margin-block: var(--space);
-}
-
-.suggestions__recent-list {
-  margin: 0;
-  padding-left: 1.25rem;
 }
 
 .muted {

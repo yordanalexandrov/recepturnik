@@ -1,10 +1,15 @@
 import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
+import { RecentAiRequests } from '../ai/RecentAiRequests';
 import { ImportLinkForm } from './ImportLinkForm';
 import { ImportPhotoForm } from './ImportPhotoForm';
 import { type ImportTextDraft, ImportTextForm } from './ImportTextForm';
-import { type ImportRequestParams, useRequestImport } from './queries';
-import { RecentImports } from './RecentImports';
+import { importLabel } from './messages';
+import {
+  type ImportRequestParams,
+  useRecentImports,
+  useRequestImport,
+} from './queries';
 
 type ImportTab = 'text' | 'url' | 'photo';
 
@@ -45,6 +50,7 @@ export function parseImportSearch(
 /** `/recipes/import` („Внеси рецепта“): табовете за източника и последните внасяния под тях. */
 export function ImportScreen() {
   const search = useSearch({ from: '/recipes/import' });
+  const recentImports = useRecentImports();
   // Табът „Текст“ се демонтира при друг таб: поставеното остава тук, за да е там при връщане.
   const [textDraft, setTextDraft] = useState<ImportTextDraft>(() => ({
     text: search.text ?? '',
@@ -113,7 +119,13 @@ export function ImportScreen() {
           <ImportLinkForm {...formProps} initialUrl={search.url} />
         )}
       </div>
-      <RecentImports />
+      <RecentAiRequests
+        title="Последни внасяния"
+        empty="Още няма внасяния."
+        requests={recentImports}
+        to="/recipes/import/$requestId"
+        label={importLabel}
+      />
     </main>
   );
 }
