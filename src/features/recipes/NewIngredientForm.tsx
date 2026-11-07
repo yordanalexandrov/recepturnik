@@ -23,7 +23,8 @@ interface NewIngredientFormProps {
 }
 
 /**
- * Мини форма „Нов продукт“ (име, основна единица, щанд) → `POST /api/ingredients`.
+ * Мини форма „Нов продукт“ (име, основна единица, щанд) → `POST /api/ingredients`; ако продуктът вече съществува
+ * (409), се избира той.
  * Не е `<form>`, защото стои вътре във формата на рецептата.
  */
 export function NewIngredientForm({
@@ -38,8 +39,6 @@ export function NewIngredientForm({
   const [aisle, setAisle] = useState<Aisle | ''>(initialAisle ?? '');
   const [errors, setErrors] = useState<{ name?: string; aisle?: string }>({});
   const create = useCreateIngredient();
-  const existing =
-    create.data?.status === 'exists' ? create.data.ingredient : undefined;
 
   function submit() {
     const parsed = createIngredientSchema.safeParse({ name, unit, aisle });
@@ -53,10 +52,9 @@ export function NewIngredientForm({
     }
     setErrors({});
     create.mutate(parsed.data, {
+      // 409: продуктът вече съществува и се избира той.
       onSuccess(result) {
-        if (result.status === 'created') {
-          onCreated(result.ingredient);
-        }
+        onCreated(result.ingredient);
       },
     });
   }
@@ -120,20 +118,6 @@ export function NewIngredientForm({
           )}
         </Field>
       </div>
-      {existing && (
-        <div className="form-actions">
-          <p className="field__error">
-            Вече има „{existing.name}“, ползвай него
-          </p>
-          <button
-            type="button"
-            className="button"
-            onClick={() => onCreated(existing)}
-          >
-            Избери „{existing.name}“
-          </button>
-        </div>
-      )}
       {create.isError && <ErrorBox error={create.error} />}
       <div className="form-actions">
         <button

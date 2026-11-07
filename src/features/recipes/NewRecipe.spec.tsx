@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { RECEPTURKO_ID } from '../../api/client';
 import { networkFailure, recordRequests, server } from '../../test/msw';
 import { chicken } from '../../test/recipe-detail';
@@ -215,15 +215,12 @@ describe('Нова рецепта', () => {
     );
     await user.click(sheet.getByRole('button', { name: 'Създай' }));
 
-    expect(
-      await sheet.findByText('Вече има „пилешко филе“, ползвай него'),
-    ).toBeInTheDocument();
-    await user.click(
-      sheet.getByRole('button', { name: 'Избери „пилешко филе“' }),
+    await vi.waitFor(() =>
+      expect(sheet.getByRole('textbox', { name: 'Продукт' })).toHaveValue(
+        'пилешко филе',
+      ),
     );
-    expect(sheet.getByRole('textbox', { name: 'Продукт' })).toHaveValue(
-      'пилешко филе',
-    );
+    expect(sheet.queryByRole('group', { name: 'Нов продукт' })).toBeNull();
   });
 
   it('запис с несвързан продукт не минава, а отваря листа на първия такъв продукт', async () => {
