@@ -77,6 +77,12 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   стойности от рецептата, `parseEditRecipeSearch` чете `?revise`), `useSaveAndView(id?)` (запис и към прегледа).
 - Снимка на стъпка: `step-photos/queries.ts:useUploadStepPhoto` смалява в браузъра (`resize-step-photo.ts`, до
   2000 px, JPEG, както във family) и качва веднага; стъпката сочи към нея от „Запази“ нататък.
+- AI предложения: `features/suggestions/` — `SuggestScreen` (`/recipes/suggest`: хранене, време, тагове,
+  подсказка; уредите само за четене; последните заявки), `SuggestionRequestView` (`/recipes/suggest/$requestId`:
+  пита на `POLL_INTERVAL_MS`, докато е `pending`; картите или защо е неуспешна и „Опитай пак“), `SuggestionCard`
+  (действията по статуса в `SuggestionActions`: „Приеми“, „Отхвърли“, „Върни“ — там влизат и следващите действия
+  върху предложение) и `SuggestionReview` (`/recipes/suggest/$requestId/$suggestionId`: предложението в
+  `RecipeForm`, „Запази“ = `approve`). Нищо не се записва в менюто на family.
 - `src/styles/global.css` — целият CSS: системен шрифт, CSS променливите на `:root`, тъмна тема по
   `prefers-color-scheme`, една граница за широк екран (48rem). Без стиловете на family.
 
@@ -96,4 +102,7 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - `src/test/recipe-detail.ts` — продукти, рецепта с редове и `serveRecipe(recipe)` (`GET /api/recipes/:id`).
 - `src/test/recipe-form.ts` — `serveForm()` (уреди, търсене на продукти, `POST /api/recipes`; връща телата),
   `serveAppliances`, `serveIngredientSearch`, `mint` (продукт за „Нов продукт“).
+- `src/test/suggestions.ts` — заявки и предложения; `serveRequestSuggestions` (POST, връща телата),
+  `serveRecentRequests`, `serveDetail(...states)` (поредни състояния за проверката на `pending`) и
+  `serveDecisions(detail)` (заявката с `approve`/`reject`/`restore`, които сменят статуса).
 - Търси по роля и достъпно име; сменяй отговорите със `server.use(...)` в самия тест.
