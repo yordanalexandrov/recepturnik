@@ -73,6 +73,11 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   чернова) с листовете `IngredientLineSheet` (`IngredientPicker`, `NewIngredientForm`) и `StepSheet`;
   `recipe-form-values.ts` е преобразуването форма ↔ `RecipeInput` от family (с проверката по `recipeInputSchema`).
   `RecipeEditor.tsx`: `NewRecipeScreen`, `useSaveAndView(id?)` (запис и към прегледа).
+- Внасяне: `features/recipe-import/` — `ImportScreen` (`/recipes/import`, табове „Текст“/„Линк“/„Снимка“,
+  `?tab=&url=&text=`, „Последни внасяния“) и `ImportRequestView` (`/recipes/import/$requestId`: пита на 3 s, докато е
+  `pending`; черновата е във формата за нова рецепта, а „Запази“ одобрява предложението през
+  `/api/recipe-suggestions/:id/approve`). Без share target на family. Създаден „Нов продукт“ свързва и другите редове
+  със същия предложен нов продукт.
 - `src/styles/global.css` — целият CSS: системен шрифт, CSS променливите на `:root`, тъмна тема по
   `prefers-color-scheme`, една граница за широк екран (48rem). Без стиловете на family.
 
@@ -92,4 +97,6 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - `src/test/recipe-detail.ts` — продукти, рецепта с редове и `serveRecipe(recipe)` (`GET /api/recipes/:id`).
 - `src/test/recipe-form.ts` — `serveForm()` (уреди, търсене на продукти, `POST /api/recipes`; връща телата),
   `serveAppliances`, `serveIngredientSearch`, `mint` (продукт за „Нов продукт“).
+- `src/test/imports.ts` — внасяне, чернова и `serveImport(...states)` (`GET` на внасянето минава през състоянията);
+  `src/test/form-data.ts:recordForms()` — снимките (multipart) не стигат до msw, затова формите се записват от fetch.
 - Търси по роля и достъпно име; сменяй отговорите със `server.use(...)` в самия тест.

@@ -792,3 +792,100 @@ fieldset.stars {
     grid-column: 1 / -1;
   }
 }
+
+/* Внасяне на рецепта (`features/recipe-import`) */
+
+.tabs {
+  display: flex;
+  gap: calc(var(--space) / 2);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space);
+}
+
+.tabs__tab {
+  padding: calc(var(--space) / 2) var(--space);
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--color-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tabs__tab[aria-selected="true"] {
+  border-bottom-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.import-form {
+  display: grid;
+  gap: var(--space);
+  max-width: 48rem;
+  justify-items: start;
+}
+
+.import-form .field {
+  width: 100%;
+}
+
+.import-form__text {
+  min-height: 14rem;
+  resize: vertical;
+}
+
+.import-photo__previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--space) / 2);
+}
+
+.import-photo__preview,
+.import-subject__photo {
+  max-width: 12rem;
+  max-height: 16rem;
+  border-radius: var(--radius);
+  object-fit: contain;
+}
+
+.import-subject {
+  display: grid;
+  gap: calc(var(--space) / 2);
+  white-space: pre-line;
+  color: var(--color-muted);
+}
+
+.import-draft {
+  display: grid;
+  gap: calc(var(--space) / 2);
+  margin-bottom: var(--space);
+}
+
+.import-draft__note {
+  margin: 0;
+  padding: calc(var(--space) / 2) var(--space);
+  border-left: 3px solid var(--color-accent);
+  background: var(--color-surface);
+}
+
+.recent {
+  margin-top: calc(var(--space) * 2);
+}
+
+.recent__list {
+  display: grid;
+  gap: calc(var(--space) / 2);
+  padding: 0;
+  list-style: none;
+}
+
+.recent__link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: calc(var(--space) / 2);
+}
+
+.recent__date {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}

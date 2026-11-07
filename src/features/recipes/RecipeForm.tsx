@@ -81,6 +81,11 @@ function reindexErrors(
   return next;
 }
 
+/** Името на предложения нов продукт на реда, за сравнение без значение от главни букви. */
+function newProductKey(row: IngredientRowValues): string | undefined {
+  return row.newProduct?.name.trim().toLocaleLowerCase('bg');
+}
+
 /** Новият индекс на ред след махането на `removed`. */
 function afterRemoving(removed: number) {
   return (index: number) =>
@@ -168,6 +173,27 @@ export function RecipeForm({
         ? { unit: ingredient.unit }
         : {}),
     };
+  }
+
+  /**
+   * Продукт, създаден от един ред, свързва и другите несвързани редове със същия предложен нов продукт (напр. от
+   * внасяне — за блат и крем). Като във family.
+   */
+  function linkSameNewProduct(key: string, ingredient: Ingredient) {
+    const source = values.ingredients.find((row) => row.key === key);
+    const name = source && newProductKey(source);
+    if (name === undefined) {
+      return;
+    }
+    for (const row of values.ingredients) {
+      if (
+        row.key !== key &&
+        row.ingredient === null &&
+        newProductKey(row) === name
+      ) {
+        updateRow(row.key, selected(row, ingredient));
+      }
+    }
   }
 
   function addIngredient() {
@@ -469,6 +495,9 @@ export function RecipeForm({
           onChange={(patch) => updateRow(editingRow.key, patch)}
           onSelect={(ingredient) =>
             updateRow(editingRow.key, selected(editingRow, ingredient))
+          }
+          onCreated={(ingredient) =>
+            linkSameNewProduct(editingRow.key, ingredient)
           }
           onRemove={() => removeIngredient(editingRow.key)}
           onClose={closeIngredient}
