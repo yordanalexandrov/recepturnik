@@ -1,8 +1,12 @@
 import {
+  inPrepTimeRanges,
   type Recipe,
   type RecipeSummary,
+  type RecipesQuery,
   recipeSchema,
   recipeSummarySchema,
+  recipesQuerySchema,
+  slotSchema,
 } from '@family/shared';
 import { HttpResponse, http } from 'msw';
 import { server } from './msw';
@@ -50,8 +54,10 @@ export function toSummary(recipe: Recipe): RecipeSummary {
 }
 
 /**
- * `GET /api/recipes` с тези рецепти. Търсенето `q` стеснява по заглавие (без значение от главни букви), както
- * api-то. Връща query низовете на заявките по ред, за проверка на параметрите.
+ * `GET /api/recipes` с тези рецепти, филтрирани като в api-то на family: `q` по заглавие (без значение от главни
+ * букви), `tag` (от слотовете — който и да е, от другите — всички), `time` (интервал; рецепта без време не влиза),
+ * архивираните само с `includeArchived=true`, `sort=rating` (по оценка, неоценените накрая) или по заглавие.
+ * Връща query низовете на заявките по ред, за проверка на параметрите.
  */
 export function serveRecipes(recipes: Recipe[]): URLSearchParams[] {
   const searches: URLSearchParams[] = [];
@@ -59,12 +65,34 @@ export function serveRecipes(recipes: Recipe[]): URLSearchParams[] {
     http.get('/api/recipes', ({ request }) => {
       const search = new URL(request.url).searchParams;
       searches.push(search);
-      const q = search.get('q')?.toLocaleLowerCase('bg') ?? '';
-      const found = recipes.filter((recipe) =>
-        recipe.title.toLocaleLowerCase('bg').includes(q),
+      const query = recipesQuerySchema.parse({
+        ...Object.fromEntries(search),
+        tag: search.getAll('tag'),
+        time: search.getAll('time'),
+      });
+      const found = recipes.filter((recipe) => matches(recipe, query));
+      found.sort(
+        (a, b) =>
+          (query.sort === 'rating' ? (b.rating ?? 0) - (a.rating ?? 0) : 0) ||
+          a.title.localeCompare(b.title, 'bg'),
       );
       return HttpResponse.json({ recipes: found.map(toSummary) });
     }),
   );
   return searches;
+}
+
+function matches(recipe: Recipe, query: RecipesQuery): boolean {
+  const q = query.q?.toLocaleLowerCase('bg') ?? '';
+  const slots = query.tag.filter((tag) => slotSchema.safeParse(tag).success);
+  const others = query.tag.filter((tag) => !slots.includes(tag));
+  return (
+    recipe.title.toLocaleLowerCase('bg').includes(q) &&
+    (query.includeArchived || recipe.archivedAt === null) &&
+    (slots.length === 0 || slots.some((tag) => recipe.tags.includes(tag))) &&
+    others.every((tag) => recipe.tags.includes(tag)) &&
+    (query.time.length === 0 ||
+      (recipe.prepMinutes !== undefined &&
+        inPrepTimeRanges(recipe.prepMinutes, query.time)))
+  );
 }

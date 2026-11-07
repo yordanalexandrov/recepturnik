@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
-import { afterAll, afterEach, beforeAll } from 'vitest';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { server } from './msw';
 
 // Под натоварване (няколко worktree-а пускат тестове едновременно) 1 s по подразбиране за findBy/waitFor не стига.
@@ -19,6 +19,7 @@ afterEach(() => {
   server.events.removeAllListeners();
   localStorage.clear();
   sessionStorage.clear();
+  vi.unstubAllGlobals();
 });
 
 afterAll(() => server.close());

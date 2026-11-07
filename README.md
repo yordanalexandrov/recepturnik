@@ -62,7 +62,11 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - `src/app/` — `router.tsx` (code-based routes, същите пътища като във family; нов екран = `createRoute` +
   `addChildren`), `Layout.tsx` (горната навигация), `query-client.ts` (повтаря само мрежа и 5xx).
   `Placeholder.tsx` пази местата на екраните от следващите задачи.
-- `src/features/<feature>/` — екраните и заявките им (`queries.ts` с ключовете на TanStack Query).
+- `src/components/Sheet.tsx` — лист („Готово“, Escape, фон); `src/lib/use-media-query.ts:useWideScreen()` —
+  широк екран (48rem) в JS, когато екранът се различава не само по CSS.
+- `src/features/<feature>/` — екраните и заявките им (`queries.ts` с ключовете на TanStack Query). Филтрите на
+  регистъра (`features/recipes/filters.ts`) се пазят в sessionStorage под `recepturnik.recipeFilters` и минават през
+  `recipeFiltersSchema` при четене.
 - `src/styles/global.css` — целият CSS: системен шрифт, CSS променливите на `:root`, тъмна тема по
   `prefers-color-scheme`, една граница за широк екран (48rem). Без стиловете на family.
 
@@ -75,6 +79,9 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - `src/test/msw.ts` — `server` с handler-ите по подразбиране (празен регистър), `apiError(...)`,
   `accessRedirect()` (изтекла сесия), `networkFailure()`, `recordRequests()` (headers на всяка заявка).
   Заявка без handler проваля теста.
-- `src/test/recipes.ts` — фикстури, минали през schema-ите от `@family/shared`, и `serveRecipes(recipes)`.
+- `src/test/recipes.ts` — фикстури, минали през schema-ите от `@family/shared`, и `serveRecipes(recipes)`, който
+  филтрира и подрежда като api-то (`q`, `tag`, `time`, `includeArchived`, `sort`).
+- `src/test/viewport.ts` — `setViewport('wide' | 'narrow')` имитира `matchMedia` (jsdom я няма); без него екранът
+  е тесен. Нужно е за екрани, които се различават по ширина (напр. филтрите: панел или лист).
 - `src/test/recipe-detail.ts` — продукти, рецепта с редове и `serveRecipe(recipe)` (`GET /api/recipes/:id`).
 - Търси по роля и достъпно име; сменяй отговорите със `server.use(...)` в самия тест.
