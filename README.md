@@ -38,7 +38,14 @@ pnpm test       # Vitest + jsdom + Testing Library + msw
 pnpm build
 ```
 
-CI (`.github/workflows/ci.yml`) пуска същите четири проверки на всеки PR и push в `master`.
+CI (`.github/workflows/ci.yml`) пуска същите четири проверки на всеки PR и push в `master`, плюс проверката на
+workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на образа (`infra/check-image.sh`).
+
+## Deploy
+
+Всеки push в `master` се deploy-ва сам на homesrv (`.github/workflows/deploy.yml`, self-hosted runner с label
+`recepturnik`): Caddy със статиката на `127.0.0.1:18092`, `/api/*` и `/healthz` към api-то на family. Подробности,
+локална проверка и ръчните стъпки (runner, Cloudflare tunnel, Access) са в [infra/README.md](infra/README.md).
 
 ## Устройство
 
