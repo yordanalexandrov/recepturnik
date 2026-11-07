@@ -77,6 +77,12 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   стойности от рецептата, `parseEditRecipeSearch` чете `?revise`), `useSaveAndView(id?)` (запис и към прегледа).
 - Снимка на стъпка: `step-photos/queries.ts:useUploadStepPhoto` смалява в браузъра (`resize-step-photo.ts`, до
   2000 px, JPEG, както във family) и качва веднага; стъпката сочи към нея от „Запази“ нататък.
+- „Подобри рецептата“: бутонът на прегледа отваря `features/recipes/RefineSheet.tsx`, който пуска заявката
+  (`refinements.ts`: `useRequestRefinement`, `useRefinement` пита на 3 s, докато е `pending`) и показва сравнението.
+  „Приеми“ води към `/recipes/$id/edit?refine=<id на заявката>`; формата започва с `refinedFormValues(recipe,
+  refinement)` (стъпки, подготовка, време) и записът е обикновен `PUT`. Сравнението е `RecipeComparison` +
+  `ComparisonColumn` (колони една под друга на телефон, една до друга от 48rem; ползва го и „Поправи с AI“), а
+  съобщенията за неуспешна AI заявка — `src/lib/ai-requests.ts:failureMessage(kind, request)`.
 - `src/styles/global.css` — целият CSS: системен шрифт, CSS променливите на `:root`, тъмна тема по
   `prefers-color-scheme`, една граница за широк екран (48rem). Без стиловете на family.
 
@@ -96,4 +102,6 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - `src/test/recipe-detail.ts` — продукти, рецепта с редове и `serveRecipe(recipe)` (`GET /api/recipes/:id`).
 - `src/test/recipe-form.ts` — `serveForm()` (уреди, търсене на продукти, `POST /api/recipes`; връща телата),
   `serveAppliances`, `serveIngredientSearch`, `mint` (продукт за „Нов продукт“).
+- `src/test/refinements.ts` — подобрение на „Пиле с песто“ и `serveRefinement(finished, pendingPolls)` (`POST` и
+  четенето на заявката; брои пусканията).
 - Търси по роля и достъпно име; сменяй отговорите със `server.use(...)` в самия тест.

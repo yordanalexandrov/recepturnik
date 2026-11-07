@@ -859,3 +859,76 @@ fieldset.stars {
     grid-column: 1 / -1;
   }
 }
+
+/* „Подобри рецептата“ и сравнението на рецепти (`RecipeComparison`): колоните една под друга на телефон, една до друга
+   на широк екран. */
+
+.refine {
+  display: grid;
+  gap: var(--space);
+}
+
+.refine > p {
+  margin: 0;
+}
+
+.refine__note,
+.comparison__note,
+.edit-recipe__note {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.refine__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: calc(var(--space) / 2);
+}
+
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space);
+}
+
+.comparison__column {
+  min-width: 0;
+  padding: var(--space);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.comparison__heading {
+  margin: 0 0 calc(var(--space) / 2);
+  font-size: 1rem;
+}
+
+.comparison__subheading {
+  margin: 0 0 calc(var(--space) / 4);
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.comparison__steps {
+  margin: calc(var(--space) / 2) 0 0;
+  padding-left: 1.5rem;
+}
+
+.comparison__step {
+  margin-bottom: calc(var(--space) / 2);
+}
+
+.comparison__step > span {
+  display: block;
+}
+
+@media (min-width: 48rem) {
+  .sheet__panel--wide {
+    max-width: 64rem;
+  }
+
+  .comparison {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}

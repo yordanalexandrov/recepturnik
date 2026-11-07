@@ -4,7 +4,8 @@ import {
   type Recipe,
   TAG_LABELS_BG,
 } from '@family/shared';
-import { Link, useParams } from '@tanstack/react-router';
+import { Link, useNavigate, useParams } from '@tanstack/react-router';
+import { useState } from 'react';
 import { ApiError } from '../../api/client';
 import { ErrorBox } from '../../components/ErrorBox';
 import { Spinner } from '../../components/Spinner';
@@ -20,6 +21,7 @@ import {
   sourceDomain,
 } from './format';
 import { useArchiveRecipe, useRateRecipe, useRecipe } from './queries';
+import { RefineSheet } from './RefineSheet';
 import { RatingStars } from './Stars';
 
 /** Прегледът на рецепта (`/recipes/$id`). Копие на `RecipeView` от family без Готвене, „Как мина?“ и устройствата. */
@@ -93,6 +95,10 @@ function RecipeDetails({ recipe }: { recipe: Recipe }) {
     (line) => line.component,
   );
   const nutrition = recipe.nutritionPer100g;
+  const navigate = useNavigate();
+  const [refining, setRefining] = useState(false);
+  /** Подобряването, което още чака: затвореният и отворен пак лист продължава него. */
+  const [refineId, setRefineId] = useState<string>();
   return (
     <article className="recipe-view__article">
       <header className="recipe-view__header recipe-view__wide">
@@ -138,6 +144,13 @@ function RecipeDetails({ recipe }: { recipe: Recipe }) {
           >
             Редактирай
           </Link>
+          <button
+            type="button"
+            className="button button--quiet"
+            onClick={() => setRefining(true)}
+          >
+            Подобри рецептата
+          </button>
           <button
             type="button"
             className="button button--quiet"
@@ -221,6 +234,28 @@ function RecipeDetails({ recipe }: { recipe: Recipe }) {
             {formatNumber(nutrition.carbsG)} г
           </p>
         </footer>
+      )}
+      {refining && (
+        <RefineSheet
+          recipe={recipe}
+          requestId={refineId}
+          onRequested={setRefineId}
+          onAccept={(requestId) => {
+            setRefining(false);
+            setRefineId(undefined);
+            void navigate({
+              to: '/recipes/$id/edit',
+              params: { id: recipe.id },
+              search: { refine: requestId },
+            });
+          }}
+          onClose={(pending) => {
+            if (!pending) {
+              setRefineId(undefined);
+            }
+            setRefining(false);
+          }}
+        />
       )}
     </article>
   );
