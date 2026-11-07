@@ -77,6 +77,12 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   стойности от рецептата, `parseEditRecipeSearch` чете `?revise`), `useSaveAndView(id?)` (запис и към прегледа).
 - Снимка на стъпка: `step-photos/queries.ts:useUploadStepPhoto` смалява в браузъра (`resize-step-photo.ts`, до
   2000 px, JPEG, както във family) и качва веднага; стъпката сочи към нея от „Запази“ нататък.
+- AI предложения: `features/suggestions/` — `SuggestScreen` (`/recipes/suggest`: хранене, време, тагове,
+  подсказка; уредите само за четене; последните заявки), `SuggestionRequestView` (`/recipes/suggest/$requestId`:
+  пита на `POLL_INTERVAL_MS`, докато е `pending`; картите или защо е неуспешна и „Опитай пак“), `SuggestionCard`
+  (действията по статуса в `SuggestionActions`: „Приеми“, „Отхвърли“, „Върни“ — там влизат и следващите действия
+  върху предложение) и `SuggestionReview` (`/recipes/suggest/$requestId/$suggestionId`: предложението в
+  `RecipeForm`, „Запази“ = `approve`). Нищо не се записва в менюто на family.
 - Внасяне: `features/recipe-import/` — `ImportScreen` (`/recipes/import`, табове „Текст“/„Линк“/„Снимка“,
   `?tab=&url=&text=`, „Последни внасяния“) и `ImportRequestView` (`/recipes/import/$requestId`: пита на 3 s, докато е
   `pending`; черновата е във формата за нова рецепта, а „Запази“ одобрява предложението през
@@ -101,6 +107,9 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
 - `src/test/recipe-detail.ts` — продукти, рецепта с редове и `serveRecipe(recipe)` (`GET /api/recipes/:id`).
 - `src/test/recipe-form.ts` — `serveForm()` (уреди, търсене на продукти, `POST /api/recipes`; връща телата),
   `serveAppliances`, `serveIngredientSearch`, `mint` (продукт за „Нов продукт“).
+- `src/test/suggestions.ts` — заявки и предложения; `serveRequestSuggestions` (POST, връща телата),
+  `serveRecentRequests`, `serveDetail(...states)` (поредни състояния за проверката на `pending`) и
+  `serveDecisions(detail)` (заявката с `approve`/`reject`/`restore`, които сменят статуса).
 - `src/test/imports.ts` — внасяне, чернова и `serveImport(...states)` (`GET` на внасянето минава през състоянията);
   `src/test/form-data.ts:recordForms()` — снимките (multipart) не стигат до msw, затова формите се записват от fetch.
 - Търси по роля и достъпно име; сменяй отговорите със `server.use(...)` в самия тест.

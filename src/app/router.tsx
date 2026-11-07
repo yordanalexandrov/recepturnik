@@ -17,6 +17,9 @@ import {
 } from '../features/recipes/RecipeEditor';
 import { RecipeList } from '../features/recipes/RecipeList';
 import { RecipeView } from '../features/recipes/RecipeView';
+import { SuggestionRequestView } from '../features/suggestions/SuggestionRequestView';
+import { SuggestionReview } from '../features/suggestions/SuggestionReview';
+import { SuggestScreen } from '../features/suggestions/SuggestScreen';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
 import { Placeholder } from './Placeholder';
@@ -67,7 +70,19 @@ const importRequestRoute = createRoute({
 const suggestRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/suggest',
-  component: () => <Placeholder title="Предложения" />,
+  component: SuggestScreen,
+});
+
+const suggestionRequestRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/recipes/suggest/$requestId',
+  component: SuggestionRequestView,
+});
+
+const suggestionReviewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/recipes/suggest/$requestId/$suggestionId',
+  component: SuggestionReview,
 });
 
 const recipeRoute = createRoute({
@@ -90,6 +105,8 @@ const routeTree = rootRoute.addChildren([
   importRoute,
   importRequestRoute,
   suggestRoute,
+  suggestionRequestRoute,
+  suggestionReviewRoute,
   recipeRoute,
   editRecipeRoute,
 ]);
