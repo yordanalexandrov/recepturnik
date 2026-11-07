@@ -125,6 +125,16 @@ function RecipeDetails({ recipe }: { recipe: Recipe }) {
             </span>
           )}
           {archived && <span className="badge">Архивирана</span>}
+          {recipe.openRevision && (
+            <Link
+              to="/recipes/$id/edit"
+              params={{ id: recipe.id }}
+              search={{ revise: true }}
+              className="badge badge--revision"
+            >
+              Поправка чака преглед
+            </Link>
+          )}
           {recipe.sourceUrl && (
             <a
               href={recipe.sourceUrl}
@@ -151,6 +161,14 @@ function RecipeDetails({ recipe }: { recipe: Recipe }) {
           >
             Подобри рецептата
           </button>
+          <Link
+            to="/recipes/$id/edit"
+            params={{ id: recipe.id }}
+            search={{ revise: true }}
+            className="button button--quiet"
+          >
+            Поправи с AI
+          </Link>
           <button
             type="button"
             className="button button--quiet"

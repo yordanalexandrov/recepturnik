@@ -53,8 +53,8 @@ export function SuggestionCard({
 }
 
 /**
- * Действията на картата по статуса на предложението. Тук влизат и следващите действия върху предложение, които чакат
- * решение (напр. „Поправи с AI“, #12).
+ * Действията на картата по статуса на предложението: чакащото се приема, поправя („Поправи с AI“ отваря прегледа с
+ * листа на поправката) или отхвърля.
  */
 function SuggestionActions({ suggestion }: { suggestion: RecipeSuggestion }) {
   const reject = useRejectSuggestion();
@@ -79,6 +79,17 @@ function SuggestionActions({ suggestion }: { suggestion: RecipeSuggestion }) {
               className="button"
             >
               Приеми
+            </Link>
+            <Link
+              to="/recipes/suggest/$requestId/$suggestionId"
+              params={{
+                requestId: suggestion.requestId,
+                suggestionId: suggestion.id,
+              }}
+              search={{ revise: true }}
+              className="button button--quiet"
+            >
+              Поправи с AI
             </Link>
             <button
               type="button"

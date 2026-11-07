@@ -473,6 +473,10 @@ fieldset.stars {
   font-size: 0.875rem;
 }
 
+.badge--revision {
+  border-color: currentColor;
+}
+
 .recipe-view__section h2 {
   font-size: 1.25rem;
   margin: 0 0 calc(var(--space) / 2);

@@ -9,12 +9,12 @@ import { useEffect, useState } from 'react';
 import { ErrorBox } from '../../components/ErrorBox';
 import { Spinner } from '../../components/Spinner';
 import { sourceDomain } from '../recipes/format';
-import { RecipeForm } from '../recipes/RecipeForm';
 import {
   useApproveSuggestion,
   useRejectSuggestion,
   useRestoreSuggestion,
 } from '../suggestions/queries';
+import { RevisableSuggestionForm } from '../suggestions/RevisableSuggestionForm';
 import { importToFormValues } from './import-form-values';
 import { importFailureMessage, textLead } from './messages';
 import { useImport, useRequestImport, useSentPhoto } from './queries';
@@ -121,7 +121,7 @@ function ImportSubject({ detail }: { detail: RecipeImportDetail }) {
 /**
  * Черновата от внасянето във формата за нова рецепта: допусканията на AI отгоре, редовете с продукти от регистъра —
  * свързани, новите — за свързване или „Нов продукт“. „Запази“ одобрява предложението с рецептата от формата и отваря
- * рецептата; „Отхвърли“ го отхвърля.
+ * рецептата; „Отхвърли“ го отхвърля, а „Поправи с AI“ поправя черновата във формата, както е.
  */
 function ImportDraft({
   suggestion,
@@ -169,8 +169,9 @@ function ImportDraft({
         </div>
         {reject.isError && <ErrorBox error={reject.error} />}
       </section>
-      <RecipeForm
+      <RevisableSuggestionForm
         key={suggestion.id}
+        suggestionId={suggestion.id}
         initialValues={importToFormValues(
           suggestion.payload,
           linked,
@@ -178,13 +179,17 @@ function ImportDraft({
         )}
         isSubmitting={approve.isPending}
         submitError={approve.error}
-        onSubmit={(input) => {
+        onSubmit={(input, revisionId) => {
           reject.reset();
           approve.mutate(
             // „Без уред“ е `null`: без поле api-то би взело уреда на предложението.
             {
               id: suggestion.id,
-              input: { ...input, appliance: input.appliance ?? null },
+              input: {
+                ...input,
+                appliance: input.appliance ?? null,
+                ...(revisionId ? { revisionId } : {}),
+              },
             },
             {
               onSuccess: ({ recipe }) =>

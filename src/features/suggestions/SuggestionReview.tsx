@@ -4,19 +4,37 @@ import {
   type RecipeSuggestion,
 } from '@family/shared';
 import { useQueries } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from '@tanstack/react-router';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearch,
+} from '@tanstack/react-router';
 import { ErrorBox } from '../../components/ErrorBox';
 import { Spinner } from '../../components/Spinner';
 import { ingredientSearchQuery } from '../recipes/queries';
-import { RecipeForm } from '../recipes/RecipeForm';
 import {
   useApproveSuggestion,
   useRestoreSuggestion,
   useSuggestionRequest,
 } from './queries';
+import { RevisableSuggestionForm } from './RevisableSuggestionForm';
 import { suggestionToFormValues } from './suggestion-form-values';
 
 const ROUTE = '/recipes/suggest/$requestId/$suggestionId';
+
+export interface SuggestionReviewSearch {
+  /** „Поправи с AI“ от картата: прегледът се отваря с листа на поправката. */
+  revise?: true;
+}
+
+export function parseSuggestionReviewSearch(
+  search: Record<string, unknown>,
+): SuggestionReviewSearch {
+  return search.revise === true || search.revise === 'true'
+    ? { revise: true }
+    : {};
+}
 
 /** `/recipes/suggest/:requestId/:suggestionId`: прегледът на едно предложение във формата и приемането му. */
 export function SuggestionReview() {
@@ -113,9 +131,10 @@ function useResolvedIngredients(suggestion: RecipeSuggestion) {
 
 /**
  * Предложението във формата на рецепта: „Запази“ го приема (`approve`) и отива на новата рецепта. Несвързан продукт
- * (нов или непознат) спира записа и отваря листа си, както в „Нова рецепта“.
+ * (нов или непознат) спира записа и отваря листа си, както в „Нова рецепта“. „Поправи с AI“ поправя формата, както е.
  */
 function ReviewSuggestion({ suggestion }: { suggestion: RecipeSuggestion }) {
+  const { revise } = useSearch({ from: ROUTE });
   const { isPending, resolved } = useResolvedIngredients(suggestion);
   const approve = useApproveSuggestion();
   const navigate = useNavigate();
@@ -133,16 +152,22 @@ function ReviewSuggestion({ suggestion }: { suggestion: RecipeSuggestion }) {
       {isPending ? (
         <Spinner />
       ) : (
-        <RecipeForm
+        <RevisableSuggestionForm
+          suggestionId={suggestion.id}
+          revise={revise === true}
           initialValues={suggestionToFormValues(suggestion.payload, resolved)}
           isSubmitting={approve.isPending}
           submitError={approve.error}
-          onSubmit={(input) =>
+          onSubmit={(input, revisionId) =>
             approve.mutate(
               // „Без уред“ е `null`: без поле api-то би взело уреда на предложението.
               {
                 id: suggestion.id,
-                input: { ...input, appliance: input.appliance ?? null },
+                input: {
+                  ...input,
+                  appliance: input.appliance ?? null,
+                  ...(revisionId ? { revisionId } : {}),
+                },
               },
               {
                 onSuccess({ recipe }) {

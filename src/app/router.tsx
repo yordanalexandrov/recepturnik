@@ -18,7 +18,10 @@ import {
 import { RecipeList } from '../features/recipes/RecipeList';
 import { RecipeView } from '../features/recipes/RecipeView';
 import { SuggestionRequestView } from '../features/suggestions/SuggestionRequestView';
-import { SuggestionReview } from '../features/suggestions/SuggestionReview';
+import {
+  parseSuggestionReviewSearch,
+  SuggestionReview,
+} from '../features/suggestions/SuggestionReview';
 import { SuggestScreen } from '../features/suggestions/SuggestScreen';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
@@ -64,8 +67,6 @@ const importRequestRoute = createRoute({
   component: ImportRequestView,
 });
 
-// Временен екран: #10 му дава истинския component.
-
 const suggestRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/suggest',
@@ -81,6 +82,7 @@ const suggestionRequestRoute = createRoute({
 const suggestionReviewRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/recipes/suggest/$requestId/$suggestionId',
+  validateSearch: parseSuggestionReviewSearch,
   component: SuggestionReview,
 });
 

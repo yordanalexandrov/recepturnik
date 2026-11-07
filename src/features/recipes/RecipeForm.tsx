@@ -8,7 +8,13 @@ import {
   type Tag,
   tagSchema,
 } from '@family/shared';
-import { type FormEvent, useId, useMemo, useState } from 'react';
+import {
+  type FormEvent,
+  type ReactNode,
+  useId,
+  useMemo,
+  useState,
+} from 'react';
 import { ActionBar } from '../../components/ActionBar';
 import { ChoiceChips, toggled } from '../../components/ChoiceChips';
 import { ErrorBox } from '../../components/ErrorBox';
@@ -47,6 +53,11 @@ export interface RecipeFormProps {
   /** Грешка от записа (api), показва се в лентата с действията. */
   submitError?: unknown;
   onCancel?: () => void;
+  /**
+   * AI действията над стъпките, напр. „Поправи с AI“; получава полетата, както са сега (поправката на предложение праща
+   * незаписаната форма).
+   */
+  aiActions?: (values: RecipeFormValues) => ReactNode;
 }
 
 /** Стъпката или редът в отворения лист; `added` = нов от „Добави …“, който се маха, ако се затвори празен. */
@@ -164,6 +175,7 @@ export function RecipeForm({
   isSubmitting = false,
   submitError,
   onCancel,
+  aiActions,
 }: RecipeFormProps) {
   const [values, setValues] = useState<RecipeFormValues>(
     () => initialValues ?? emptyRecipeFormValues(),
@@ -606,6 +618,7 @@ export function RecipeForm({
 
         <fieldset className="recipe-form__section">
           <legend>Стъпки</legend>
+          {aiActions?.(values)}
           {errors.steps && <p className="field__error">{errors.steps}</p>}
           <ol className="form-lines form-lines--numbered" aria-label="Стъпки">
             {values.steps.map((step, index) => {

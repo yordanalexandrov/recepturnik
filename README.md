@@ -95,6 +95,15 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   refinement)` (стъпки, подготовка, време) и записът е обикновен `PUT`. Сравнението е `RecipeComparison` +
   `ComparisonColumn` (колони една под друга на телефон, една до друга от 48rem; ползва го и „Поправи с AI“), а
   съобщенията за неуспешна AI заявка — `features/ai/ai-requests.ts:failureMessage(kind, request)`.
+- „Поправи с AI“: бутонът на прегледа и значката „Поправка чака преглед“ водят към `/recipes/$id/edit?revise`, където
+  `features/recipes/ReviseSheet.tsx` (отваря се и с бутона над стъпките) иска указание, пуска поправката
+  (`revisions.ts`: `useRequestRevision` праща `applied: []` и при `404 no_applied_change` пита пак без непознатите id;
+  `useRevision` пита на 3 s) и я сравнява със сегашната рецепта. Листът продължава `recipe.openRevision`, а `409
+  revision_open` води към чакащата. „Приеми“ слага `revisedFormValues` във формата и записът е `PUT` с `revisionId`
+  (`useSaveAndView`); `409 revision_stale` не записва и отваря листа с опреснената поправка, която няма „Приеми“, а
+  „Пусни пак“. На предложение и чернова от внасяне поправката е върху незаписаната форма
+  (`suggestions/RevisableSuggestionForm.tsx`, `POST /api/recipe-suggestions/:id/revisions`), а одобрението праща
+  `revisionId`; „Поправи с AI“ на картата отваря прегледа с `?revise`.
 - `src/styles/global.css` — целият CSS: системен шрифт, CSS променливите на `:root`, тъмна тема по
   `prefers-color-scheme`, една граница за широк екран (48rem). Без стиловете на family.
 
@@ -121,4 +130,6 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   `src/test/form-data.ts:recordForms()` — снимките (multipart) не стигат до msw, затова формите се записват от fetch.
 - `src/test/refinements.ts` — подобрение на „Пиле с песто“ и `serveRefinement(finished, pendingPolls)` (`POST` и
   четенето на заявката; брои пусканията).
+- `src/test/revisions.ts` — поправка на „Пиле с песто“, `serveRevision(finished, pendingPolls)` (`POST`, четене и
+  „Отхвърли“; връща телата и отхвърлените) и `refuseStaleSave()` (следващият `PUT` е `409 revision_stale`).
 - Търси по роля и достъпно име; сменяй отговорите със `server.use(...)` в самия тест.
