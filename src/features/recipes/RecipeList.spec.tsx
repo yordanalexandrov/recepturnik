@@ -44,7 +44,8 @@ describe('Регистър рецепти', () => {
       screen.queryByRole('link', { name: /Омлет/ }),
     );
 
-    expect(requests).toHaveLength(2);
+    // Списъкът, целият регистър (за брояча) и търсенето.
+    expect(requests).toHaveLength(3);
     for (const request of requests) {
       expect(request.headers.get('x-acting-user')).toBe(
         '33333333-3333-4333-8333-333333333333',
@@ -65,7 +66,9 @@ describe('Регистър рецепти', () => {
     );
     expect(screen.getByRole('link', { name: /Омлет/ })).toBeInTheDocument();
     // Без заявка за всяка буква: само пълният низ стига до api-то.
-    expect(searches.map((search) => search.get('q'))).toEqual([null, 'омл']);
+    expect(
+      searches.map((search) => search.get('q')).filter((q) => q !== null),
+    ).toEqual(['омл']);
   });
 
   it('празният регистър казва това и предлага „Нова рецепта“', async () => {
