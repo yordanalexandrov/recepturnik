@@ -156,6 +156,23 @@ describe('„Подобри рецептата“', () => {
     expect(sheet.queryByRole('button', { name: 'Опитай пак' })).toBeNull();
   });
 
+  it('редакция с подобрение, което не е готово, казва, че то не е налично, и показва рецептата', async () => {
+    serveEdit();
+    serveRefinement({ status: 'failed', error: 'timeout' });
+    renderApp(
+      `/recipes/${chickenWithPesto.id}/edit?refine=${pendingRefinement.id}`,
+    );
+
+    expect(
+      await screen.findByText(
+        'Подобрението не е налично: формата е с рецептата, както е записана.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Време (мин)' })).toHaveValue(
+      '40',
+    );
+  });
+
   it('„Откажи“ не променя рецептата, а затворен докато чака листът продължава същата заявка', async () => {
     const saved = serveEdit();
     const calls = serveRefinement(undefined, 1);
