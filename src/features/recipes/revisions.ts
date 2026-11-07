@@ -21,9 +21,8 @@ import { recipeKeys } from './queries';
 import {
   type ComponentValues,
   componentsToValues,
-  emptyIngredientRow,
   type IngredientRowValues,
-  lineComponent,
+  proposedLineToRow,
   type RecipeFormValues,
 } from './recipe-form-values';
 
@@ -184,15 +183,14 @@ function revisionToIngredientRows(
   components: readonly ComponentValues[],
 ): IngredientRowValues[] {
   return lines.map((line) =>
-    emptyIngredientRow({
-      ...lineComponent(components, line.component),
-      ingredient: line.ingredient ?? null,
-      query: line.ingredient?.name ?? line.newProduct?.name ?? '',
-      quantity: line.quantity === null ? '' : String(line.quantity),
-      unit: line.unit,
-      ...(line.note === undefined ? {} : { note: line.note }),
-      ...(line.newProduct ? { isNew: true, newProduct: line.newProduct } : {}),
-    }),
+    proposedLineToRow(
+      {
+        ...line,
+        name: line.ingredient?.name ?? line.newProduct?.name ?? '',
+        isNew: line.newProduct !== undefined,
+      },
+      components,
+    ),
   );
 }
 

@@ -6,10 +6,9 @@ import {
 import { preparationToValues } from '../preparation/preparation-values';
 import {
   componentsToValues,
-  emptyIngredientRow,
   emptyRecipeFormValues,
-  lineComponent,
   nutritionToValues,
+  proposedLineToRow,
   type RecipeFormValues,
 } from '../recipes/recipe-form-values';
 
@@ -36,14 +35,17 @@ export function suggestionToFormValues(
     components,
     ingredients: suggestion.ingredients.map((line) => {
       const ingredient = line.isNew ? undefined : resolved.get(line.name);
-      return emptyIngredientRow({
-        ingredient: ingredient ?? null,
-        query: ingredient?.name ?? line.name,
-        quantity: line.quantity === null ? '' : String(line.quantity),
-        unit: line.unit,
-        ...(ingredient ? {} : { isNew: true }),
-        ...lineComponent(components, line.component),
-      });
+      return proposedLineToRow(
+        {
+          ingredient,
+          name: line.name,
+          quantity: line.quantity,
+          unit: line.unit,
+          isNew: ingredient === undefined,
+          component: line.component,
+        },
+        components,
+      );
     }),
     nutrition: nutritionToValues(suggestion.nutritionPer100g),
   };

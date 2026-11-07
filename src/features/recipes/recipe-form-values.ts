@@ -182,12 +182,46 @@ export function componentsToValues(
 }
 
 /** `component` на реда във формата: ключът на компонента с индекс `index`; за главен ред (`null`) — нищо. */
-export function lineComponent(
+function lineComponent(
   components: readonly ComponentValues[],
   index: number | null,
 ): { component?: string } {
   const key = index === null ? undefined : components[index]?.key;
   return key === undefined ? {} : { component: key };
+}
+
+/** Ред с продукт, предложен от AI (внасяне, предложение, поправка), преди да стане ред на формата. */
+export interface ProposedLine {
+  /** Продуктът от регистъра; без него редът е несвързан. */
+  ingredient?: Ingredient | undefined;
+  /** Името, с което редът е дошъл: търсенето на несвързания ред. */
+  name: string;
+  quantity: number | null;
+  unit: Unit;
+  note?: string | null | undefined;
+  /** Откроен като „нов продукт“, докато не се свърже. */
+  isNew: boolean;
+  /** Предложеният нов продукт: попълва формата „Нов продукт“. */
+  newProduct?: NewProduct | null | undefined;
+  /** Индексът на компонента в `components` (`null` = главен). */
+  component: number | null;
+}
+
+/** Предложеният от AI ред като ред на формата, в компонента си от `components`. */
+export function proposedLineToRow(
+  line: ProposedLine,
+  components: readonly ComponentValues[],
+): IngredientRowValues {
+  return emptyIngredientRow({
+    ...lineComponent(components, line.component),
+    ingredient: line.ingredient ?? null,
+    query: line.ingredient?.name ?? line.name,
+    quantity: line.quantity === null ? '' : String(line.quantity),
+    unit: line.unit,
+    ...(line.note == null ? {} : { note: line.note }),
+    ...(line.isNew ? { isNew: true } : {}),
+    ...(line.newProduct ? { newProduct: line.newProduct } : {}),
+  });
 }
 
 export function recipeToFormValues(recipe: Recipe): RecipeFormValues {
