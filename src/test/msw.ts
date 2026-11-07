@@ -1,4 +1,8 @@
-import type { ApiErrorCode, RefusalCode } from '@family/shared';
+import {
+  type ApiErrorCode,
+  type RefusalCode,
+  recipesResponseSchema,
+} from '@family/shared';
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
 
@@ -35,7 +39,9 @@ export function networkFailure() {
  * помощниците от фикстурите (напр. `serveRecipes` в `./recipes`).
  */
 export const handlers = [
-  http.get('/api/recipes', () => HttpResponse.json({ recipes: [] })),
+  http.get('/api/recipes', () =>
+    HttpResponse.json(recipesResponseSchema.parse({ recipes: [] })),
+  ),
 ];
 
 export const server = setupServer(...handlers);

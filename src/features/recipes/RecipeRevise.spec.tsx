@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RECEPTURKO_ID } from '../../api/client';
-import { recordRequests, server } from '../../test/msw';
+import { apiError, recordRequests, server } from '../../test/msw';
 import { chicken } from '../../test/recipe-detail';
 import {
   chickenWithPesto,
@@ -122,6 +122,32 @@ describe('„Поправи с AI“ на рецепта', () => {
         ]),
       }),
     ]);
+  });
+
+  it('при 503 казва, че AI не е на разположение, без „Приеми“', async () => {
+    const user = userEvent.setup();
+    serveEdit();
+    const calls = serveRevision();
+    server.use(
+      http.post(
+        `/api/recipes/${chickenWithPesto.id}/revisions`,
+        () =>
+          apiError(
+            503,
+            'openclaw_unavailable',
+            'OpenClaw gateway is not configured',
+          ),
+        { once: true },
+      ),
+    );
+    const { sheet } = await openRevise(user);
+
+    await send(user, sheet);
+    expect(await sheet.findByRole('alert')).toHaveTextContent(
+      'AI не е на разположение в момента. Опитай по-късно.',
+    );
+    expect(sheet.queryByRole('button', { name: 'Приеми' })).toBeNull();
+    expect(calls.posts).toEqual([]);
   });
 
   it('„Отхвърли“ отхвърля поправката и затваря листа, без запис', async () => {

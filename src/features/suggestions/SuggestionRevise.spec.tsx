@@ -36,9 +36,9 @@ const suggestionRevision = {
 /** `POST …/recipe-suggestions/:id/revisions` и поправката, веднага готова. Връща телата на `POST`. */
 function serveSuggestionRevision() {
   const posts: unknown[] = [];
+  const { recipeId: _recipeId, ...revisionOfRecipe } = pendingRevision;
   const request = {
-    ...pendingRevision,
-    recipeId: undefined,
+    ...revisionOfRecipe,
     suggestionId: skewersSuggestion.id,
     instruction: INSTRUCTION,
   };
@@ -47,7 +47,10 @@ function serveSuggestionRevision() {
       `/api/recipe-suggestions/${skewersSuggestion.id}/revisions`,
       async ({ request: body }) => {
         posts.push(await body.json());
-        return HttpResponse.json({ request }, { status: 202 });
+        return HttpResponse.json(
+          recipeRevisionResponseSchema.parse({ request }),
+          { status: 202 },
+        );
       },
     ),
     http.get(`/api/recipes/revisions/${pendingRevision.id}`, () =>

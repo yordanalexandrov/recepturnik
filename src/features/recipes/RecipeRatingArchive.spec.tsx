@@ -1,4 +1,8 @@
-import { type Recipe, recipeResponseSchema } from '@family/shared';
+import {
+  type Recipe,
+  recipeResponseSchema,
+  recipesResponseSchema,
+} from '@family/shared';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
@@ -113,7 +117,9 @@ function serveArchive(): { archiveCalls: string[] } {
       const recipes = [current, omelette].filter(
         (item) => includeArchived || item.archivedAt === null,
       );
-      return HttpResponse.json({ recipes: recipes.map(toSummary) });
+      return HttpResponse.json(
+        recipesResponseSchema.parse({ recipes: recipes.map(toSummary) }),
+      );
     }),
     http.get(`/api/recipes/${recipe.id}`, respond),
     http.post(`/api/recipes/${recipe.id}/archive`, () => {

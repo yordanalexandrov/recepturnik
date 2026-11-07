@@ -1,3 +1,4 @@
+import { recipeSuggestionResponseSchema } from '@family/shared';
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
@@ -311,7 +312,11 @@ describe('Внасяне на рецепта', () => {
         `/api/recipe-suggestions/${importedSuggestion.id}/restore`,
         () => {
           restored += 1;
-          return HttpResponse.json({ suggestion: importedSuggestion });
+          return HttpResponse.json(
+            recipeSuggestionResponseSchema.parse({
+              suggestion: importedSuggestion,
+            }),
+          );
         },
       ),
     );
