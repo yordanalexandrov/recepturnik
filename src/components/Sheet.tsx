@@ -6,6 +6,8 @@ interface SheetProps {
   children: ReactNode;
   /** Фокусът при отваряне отива на първото поле в листа (за писане веднага), а не на „Готово“. */
   focusField?: boolean;
+  /** Надписът на бутона в заглавието; „Затвори“, когато затварянето е отказ (напр. нов компонент без „Добави“). */
+  closeLabel?: string;
 }
 
 const FIELD = 'input:not([disabled]), textarea:not([disabled]), select';
@@ -15,7 +17,13 @@ const FIELD = 'input:not([disabled]), textarea:not([disabled]), select';
  * (или на първото поле с `focusField`) при отваряне и се връща там, откъдето листът е отворен, при затваряне.
  * По-прост от листа на family: без плъзгане и без запис в историята.
  */
-export function Sheet({ title, onClose, children, focusField }: SheetProps) {
+export function Sheet({
+  title,
+  onClose,
+  children,
+  focusField,
+  closeLabel = 'Готово',
+}: SheetProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   // Само при отваряне: ново изобразяване на родителя не мести фокуса.
@@ -69,7 +77,7 @@ export function Sheet({ title, onClose, children, focusField }: SheetProps) {
             className="button button--quiet"
             onClick={onClose}
           >
-            Готово
+            {closeLabel}
           </button>
         </header>
         {children}
