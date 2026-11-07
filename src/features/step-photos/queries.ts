@@ -1,7 +1,7 @@
 import { stepPhotoResponseSchema } from '@family/shared';
 import { useMutation } from '@tanstack/react-query';
 import { apiFetch } from '../../api/client';
-import { resizeStepPhoto } from './resize-step-photo';
+import { resizeStepPhoto } from '../../lib/resize-photo';
 
 /**
  * Качва снимка на стъпка веднага при избора: смалява я (`resizeStepPhoto`) и я праща като формуляр с файл в полето

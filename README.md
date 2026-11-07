@@ -76,7 +76,7 @@ workflow-ите (actionlint, `.github/scripts/check-workflows.sh`) и на об�
   `recipe-form-values.ts` е преобразуването форма ↔ `RecipeInput` от family (с проверката по `recipeInputSchema`).
   `RecipeEditor.tsx`: `NewRecipeScreen`, `EditRecipeScreen` (`/recipes/$id/edit`, `PUT`; `seed` дава началните
   стойности от рецептата, `parseEditRecipeSearch` чете `?revise`), `useSaveAndView(id?)` (запис и към прегледа).
-- Снимка на стъпка: `step-photos/queries.ts:useUploadStepPhoto` смалява в браузъра (`resize-step-photo.ts`, до
+- Снимка на стъпка: `step-photos/queries.ts:useUploadStepPhoto` смалява в браузъра (`lib/resize-photo.ts`, до
   2000 px, JPEG, както във family) и качва веднага; стъпката сочи към нея от „Запази“ нататък.
 - AI предложения: `features/suggestions/` — `SuggestScreen` (`/recipes/suggest`: хранене, време, тагове,
   подсказка; уредите само за четене; последните заявки), `SuggestionRequestView` (`/recipes/suggest/$requestId`:

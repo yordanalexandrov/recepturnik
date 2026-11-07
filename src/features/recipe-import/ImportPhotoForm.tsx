@@ -4,8 +4,8 @@ import {
 } from '@family/shared';
 import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
 import { ErrorBox } from '../../components/ErrorBox';
+import { resizeImportPhoto } from '../../lib/resize-photo';
 import type { PhotoImport } from './queries';
-import { resizePhoto } from './resize-photo';
 
 interface ImportPhotoFormProps {
   onSubmit: (params: PhotoImport) => void;
@@ -28,7 +28,7 @@ function tooLargeMessage(photos: Blob[]): string | undefined {
 
 /**
  * Табът „Снимка“: „Снимай“ (камерата на телефона) или „Избери файл“, после преглед на снимката и „Внеси“ (неактивен без
- * снимка). Снимката се смалява тук (`resizePhoto`; дълъг скрийншот — на части) и не се пази никъде.
+ * снимка). Снимката се смалява тук (`resizeImportPhoto`; дълъг скрийншот — на части) и не се пази никъде.
  */
 export function ImportPhotoForm({
   onSubmit,
@@ -49,7 +49,7 @@ export function ImportPhotoForm({
     }
     setPreparing(true);
     try {
-      setPhotos(await resizePhoto(file));
+      setPhotos(await resizeImportPhoto(file));
     } finally {
       setPreparing(false);
     }

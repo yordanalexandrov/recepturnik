@@ -32,7 +32,7 @@ export function useRecentImports() {
 }
 
 /**
- * Внасяне от снимка: файлът, вече смален (`resizePhoto`) — една снимка или частите на дълъг скрийншот отгоре надолу;
+ * Внасяне от снимка: файлът, вече смален (`resizeImportPhoto`) — една снимка или частите на дълъг скрийншот отгоре надолу;
  * отива като `multipart/form-data`, не като JSON.
  */
 export interface PhotoImport {

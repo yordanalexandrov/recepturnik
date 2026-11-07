@@ -1,5 +1,18 @@
-import { IMPORT_PHOTO_JPEG_QUALITY, importPhotoLayout } from '@family/shared';
-import { logger } from '../../logger';
+import {
+  IMPORT_PHOTO_JPEG_QUALITY,
+  IMPORT_PHOTO_MAX_SIDE,
+  importPhotoLayout,
+} from '@family/shared';
+import { logger } from '../logger';
+
+// Смаляването на снимки в браузъра преди качване (внасяне от снимка, снимка на стъпка), по
+// `features/recipe-import/resize-photo.ts` на family. Двете са с качеството на JPEG от внасянето.
+
+/**
+ * Най-дългата страна на качената снимка на стъпка: колкото на една снимка от внасяне, както във family; api-то я
+ * пази до `STEP_PHOTO_MAX_SIDE` (ADR-0008 на family).
+ */
+const STEP_PHOTO_UPLOAD_MAX_SIDE = IMPORT_PHOTO_MAX_SIDE;
 
 /**
  * Снимката, готова за внасяне, по `importPhotoLayout` (както във family): до 2000 px по дългата
@@ -7,7 +20,7 @@ import { logger } from '../../logger';
  * широк и нарязан на до 8 части отгоре надолу. Картина, която браузърът не може да декодира (HEIC извън Safari),
  * отива както е — api-то и OpenClaw я приемат до 10 MB.
  */
-export async function resizePhoto(photo: Blob): Promise<Blob[]> {
+export async function resizeImportPhoto(photo: Blob): Promise<Blob[]> {
   return (
     (await withBitmap(photo, async (bitmap) => {
       const layout = importPhotoLayout(bitmap.width, bitmap.height);
@@ -26,6 +39,25 @@ export async function resizePhoto(photo: Blob): Promise<Blob[]> {
       }
       return parts;
     })) ?? [photo]
+  );
+}
+
+/**
+ * Снимка на стъпка (GLOSSARY на family: Снимка на стъпка), готова за качване: до `STEP_PHOTO_UPLOAD_MAX_SIDE` по
+ * дългата страна, изправена по EXIF ориентацията, като JPEG, цялата, без нарязване. Картина, която браузърът не може да
+ * декодира (HEIC извън Safari), или неуспешно рисуване — отива както е: api-то я чете само.
+ */
+export async function resizeStepPhoto(photo: Blob): Promise<Blob> {
+  return (
+    (await withBitmap(photo, (bitmap) => {
+      const scale = Math.min(
+        1,
+        STEP_PHOTO_UPLOAD_MAX_SIDE / Math.max(bitmap.width, bitmap.height),
+      );
+      const width = Math.round(bitmap.width * scale);
+      const height = Math.round(bitmap.height * scale);
+      return drawJpeg(bitmap, { width, height, top: 0, canvasHeight: height });
+    })) ?? photo
   );
 }
 

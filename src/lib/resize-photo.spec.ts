@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { resizeStepPhoto } from './resize-step-photo';
+import { resizeStepPhoto } from './resize-photo';
 
 /** Браузърът декодира всяка снимка като `width`×`height`; връща нарисуваните размери на платното. */
 function decodeAs(width: number, height: number) {
